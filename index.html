@@ -2558,16 +2558,20 @@ async function refreshStravaTokenIfNeeded(token) {
   // Si le token expire dans plus de 5 minutes, on l'utilise tel quel
   if (token.expires_at && token.expires_at > nowSecs + 300) return token;
 
-  // Token expiré → refresh via Edge Function
+  // Token expiré → refresh via Edge Function (timeout 8s)
   try {
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), 8000);
     const r = await fetch(`${SUPABASE_URL}/functions/v1/strava-auth`, {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify({
         grant_type: 'refresh_token',
         refresh_token: token.refresh_token
-      })
+      }),
+      signal: ctrl.signal
     });
+    clearTimeout(tid);
     const data = await r.json();
     if (data.error || !data.access_token) {
       console.warn('Strava token refresh failed:', data.error);
@@ -2889,7 +2893,7 @@ async function loadDashboardAnalytics() { await showWeek(); }
 async function showWeek() {
   const myId    = ++_loadId;
   const mine    = () => _loadId === myId;
-  const myOff   = _weekOffset;   // capture l'offset au démarrage
+  const myOff   = _weekOffset;
   const monday  = getMondayForOffset(myOff);
   const sunday  = new Date(monday); sunday.setDate(monday.getDate()+6); sunday.setHours(23,59,59,999);
   const weekStr = monday.toISOString().split('T')[0];
@@ -2897,11 +2901,9 @@ async function showWeek() {
   const refDate = myOff < 0 ? new Date(sunday.getTime()+1) : today;
   const fmt     = d => d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
 
-  // Mise à jour immédiate du label
   document.getElementById('week-range-label').textContent = `${fmt(monday)} — ${fmt(sunday)}`;
   document.getElementById('week-next-btn').style.opacity = myOff === 0 ? '.3' : '1';
 
-  // Séances prévues (synchrone, pas d'await)
   const sj = window._activePlanSessionsJson;
   const ac = window._activePlanContent;
   const pid = window._activePlanId;
@@ -2909,18 +2911,29 @@ async function showWeek() {
   if (sj) planned = extractWeekFromSessionsJson(sj, monday);
   if (!Object.keys(planned).length && ac) planned = parsePlanForWeek(ac, monday);
 
-  // Collecte toutes les données en parallèle
-  const [tokenRow, cachedRows] = await Promise.all([
-    supabase.from('strava_tokens').select('*').eq('user_id', currentUser.id).single().then(r=>r.data).catch(()=>null),
-    pid ? fetch(
-      `${SUPABASE_URL}/rest/v1/week_analysis?user_id=eq.${currentUser.id}&plan_id=eq.${pid}&week_start=eq.${weekStr}&limit=1`,
-      {headers: authHeaders()}
-    ).then(r=>r.json()).catch(()=>null) : Promise.resolve(null)
+  // Timeout helper pour éviter les blocages infinis
+  const withTimeout = (promise, ms) => Promise.race([
+    promise,
+    new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))
   ]);
 
-  if (!mine()) return; // une navigation plus récente a démarré
+  let tokenRow = null, cachedRows = null;
+  try {
+    [tokenRow, cachedRows] = await withTimeout(Promise.all([
+      supabase.from('strava_tokens').select('*').eq('user_id', currentUser.id).single().then(r=>r.data).catch(()=>null),
+      pid ? fetch(
+        `${SUPABASE_URL}/rest/v1/week_analysis?user_id=eq.${currentUser.id}&plan_id=eq.${pid}&week_start=eq.${weekStr}&limit=1`,
+        {headers: authHeaders()}
+      ).then(r=>r.json()).catch(()=>null) : Promise.resolve(null)
+    ]), 10000);
+  } catch(e) { /* timeout ou erreur réseau — on continue avec les données partielles */ }
 
-  const token = tokenRow ? await refreshStravaTokenIfNeeded(tokenRow).catch(()=>tokenRow) : null;
+  if (!mine()) return;
+
+  let token = null;
+  try {
+    token = tokenRow ? await withTimeout(refreshStravaTokenIfNeeded(tokenRow), 10000).catch(()=>tokenRow) : null;
+  } catch(e) { token = tokenRow; }
   if (!mine()) return;
 
   const cached = Array.isArray(cachedRows) && cachedRows.length > 0 ? cachedRows[0] : null;
@@ -2934,10 +2947,13 @@ async function showWeek() {
     try {
       const ab = new Date(monday); ab.setDate(ab.getDate()-1);
       const bb = new Date(sunday); bb.setDate(bb.getDate()+1);
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), 8000);
       const raw = await fetch(
         `https://www.strava.com/api/v3/athlete/activities?after=${Math.floor(ab/1000)}&before=${Math.floor(bb/1000)}&per_page=50`,
-        {headers:{'Authorization':`Bearer ${token.access_token}`}}
+        {headers:{'Authorization':`Bearer ${token.access_token}`}, signal: ctrl.signal}
       ).then(r=>r.json());
+      clearTimeout(tid);
       if (Array.isArray(raw)) {
         const mondayStr = localDateStr(monday);
         const sundayStr = localDateStr(sunday);
@@ -2949,9 +2965,9 @@ async function showWeek() {
     } catch(e) {}
   }
 
-  if (!mine()) return; // une navigation plus récente a démarré
+  if (!mine()) return;
 
-  // Rendu final — on est certain d'être le dernier appel
+  // Rendu final — toujours exécuté même si certaines données manquent
   renderWeekComparison(monday, planned, acts, refDate, analysis);
   renderKPIs(planned, acts, token, cached?.compliance_score);
   renderAlerts(planned, acts, refDate);
