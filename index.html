@@ -2869,7 +2869,7 @@ async function loadActivePlan() {
 //  NAVIGATION SEMAINE
 // ─────────────────────────────────────────────
 let _weekOffset = 0;
-let _loadId = 0;
+let _showWeekRunning = false;
 
 function getMondayForOffset(offset) {
   const today = new Date();
@@ -2891,8 +2891,6 @@ async function navigateWeek(dir) {
 async function loadDashboardAnalytics() { await showWeek(); }
 
 async function showWeek() {
-  const myId    = ++_loadId;
-  const mine    = () => _loadId === myId;
   const myOff   = _weekOffset;
   const monday  = getMondayForOffset(myOff);
   const sunday  = new Date(monday); sunday.setDate(monday.getDate()+6); sunday.setHours(23,59,59,999);
@@ -2904,45 +2902,43 @@ async function showWeek() {
   document.getElementById('week-range-label').textContent = `${fmt(monday)} — ${fmt(sunday)}`;
   document.getElementById('week-next-btn').style.opacity = myOff === 0 ? '.3' : '1';
 
-  const sj = window._activePlanSessionsJson;
-  const ac = window._activePlanContent;
+  const sj  = window._activePlanSessionsJson;
+  const ac  = window._activePlanContent;
   const pid = window._activePlanId;
   let planned = {};
   if (sj) planned = extractWeekFromSessionsJson(sj, monday);
   if (!Object.keys(planned).length && ac) planned = parsePlanForWeek(ac, monday);
 
-  // Timeout helper pour éviter les blocages infinis
-  const withTimeout = (promise, ms) => Promise.race([
-    promise,
-    new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))
-  ]);
+  // Timeout helper
+  const withTimeout = (p, ms) => Promise.race([p, new Promise((_, r) => setTimeout(() => r(new Error('timeout')), ms))]);
 
-  let tokenRow = null, cachedRows = null;
+  // ── Toutes les données réseau avec timeout individuel
+  let tokenRow = null, cachedRows = null, token = null, acts = [];
+
   try {
-    [tokenRow, cachedRows] = await withTimeout(Promise.all([
+    tokenRow = await withTimeout(
       supabase.from('strava_tokens').select('*').eq('user_id', currentUser.id).single().then(r=>r.data).catch(()=>null),
-      pid ? fetch(
-        `${SUPABASE_URL}/rest/v1/week_analysis?user_id=eq.${currentUser.id}&plan_id=eq.${pid}&week_start=eq.${weekStr}&limit=1`,
-        {headers: authHeaders()}
-      ).then(r=>r.json()).catch(()=>null) : Promise.resolve(null)
-    ]), 10000);
-  } catch(e) { /* timeout ou erreur réseau — on continue avec les données partielles */ }
+      6000
+    );
+  } catch(e) {}
 
-  if (!mine()) return;
-
-  let token = null;
   try {
-    token = tokenRow ? await withTimeout(refreshStravaTokenIfNeeded(tokenRow), 10000).catch(()=>tokenRow) : null;
+    cachedRows = pid ? await withTimeout(
+      fetch(`${SUPABASE_URL}/rest/v1/week_analysis?user_id=eq.${currentUser.id}&plan_id=eq.${pid}&week_start=eq.${weekStr}&limit=1`,
+        {headers: authHeaders()}).then(r=>r.json()).catch(()=>null),
+      6000
+    ) : null;
+  } catch(e) {}
+
+  try {
+    token = tokenRow ? await withTimeout(refreshStravaTokenIfNeeded(tokenRow), 8000) : null;
   } catch(e) { token = tokenRow; }
-  if (!mine()) return;
 
   const cached = Array.isArray(cachedRows) && cachedRows.length > 0 ? cachedRows[0] : null;
   if (cached?.planned_sessions && Object.keys(cached.planned_sessions).length > 0)
     planned = cached.planned_sessions;
   const analysis = cached?.ai_analysis || {};
 
-  // Activités Strava
-  let acts = [];
   if (token?.access_token) {
     try {
       const ab = new Date(monday); ab.setDate(ab.getDate()-1);
@@ -2957,17 +2953,12 @@ async function showWeek() {
       if (Array.isArray(raw)) {
         const mondayStr = localDateStr(monday);
         const sundayStr = localDateStr(sunday);
-        acts = raw.filter(a => {
-          const d = activityLocalDateStr(a);
-          return d >= mondayStr && d <= sundayStr;
-        });
+        acts = raw.filter(a => activityLocalDateStr(a) >= mondayStr && activityLocalDateStr(a) <= sundayStr);
       }
     } catch(e) {}
   }
 
-  if (!mine()) return;
-
-  // Rendu final — toujours exécuté même si certaines données manquent
+  // Rendu — toujours appelé, quelles que soient les données disponibles
   renderWeekComparison(monday, planned, acts, refDate, analysis);
   renderKPIs(planned, acts, token, cached?.compliance_score);
   renderAlerts(planned, acts, refDate);
@@ -2978,7 +2969,7 @@ async function showWeek() {
   const past = acts.filter(a=>new Date(a.start_date_local)<=refDate);
   const age  = cached?.analyzed_at ? Date.now()-new Date(cached.analyzed_at).getTime() : Infinity;
   if (past.length > 0 && (!cached || age > 3*60*60*1000 || acts.length !== (cached?.strava_activities?.length ?? -1))) {
-    analyzeWeekWithAI(monday, planned, acts, refDate, pid, weekStr, myId);
+    analyzeWeekWithAI(monday, planned, acts, refDate, pid, weekStr, myOff);
   }
 }
 
@@ -3137,7 +3128,7 @@ Statuts : "ok"=conforme, "partial"=partiellement réalisé, "miss"=manqué, "res
     const analysis = JSON.parse(clean);
 
     // Met à jour uniquement les badges IA dans le tableau existant — pas de re-rendu complet
-    if (typeof myOffset === "number" && _loadId !== myOffset) return;
+    if (typeof myOffset === "number" && myOffset !== _weekOffset) return;
     updateAIBadges(analysis);
     updateComplianceScore(analysis);
 
