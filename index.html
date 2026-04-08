@@ -2931,8 +2931,14 @@ async function showWeek() {
         `https://www.strava.com/api/v3/athlete/activities?after=${Math.floor(ab/1000)}&before=${Math.floor(bb/1000)}&per_page=50`,
         {headers:{'Authorization':`Bearer ${token.access_token}`}}
       ).then(r=>r.json());
-      if (Array.isArray(raw))
-        acts = raw.filter(a=>{const d=new Date(a.start_date_local); return d>=monday&&d<=sunday;});
+      if (Array.isArray(raw)) {
+        const mondayStr = localDateStr(monday);
+        const sundayStr = localDateStr(sunday);
+        acts = raw.filter(a => {
+          const d = activityLocalDateStr(a);
+          return d >= mondayStr && d <= sundayStr;
+        });
+      }
     } catch(e) {}
   }
 
@@ -2975,44 +2981,56 @@ function updateAIBadges(analysis) {
   });
 }
 
+// ── Helpers date Strava (évite les bugs de timezone liés au Z en fin de start_date_local)
+function localDateStr(date) {
+  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+}
+function activityLocalDateStr(a) {
+  // start_date_local de Strava commence toujours par "YYYY-MM-DD"
+  return (a.start_date_local || '').substring(0, 10);
+}
+
 function extractWeekFromSessionsJson(sessionsJson, monday) {
   if (!sessionsJson || !Array.isArray(sessionsJson) || sessionsJson.length === 0) return {};
 
-  const mondayDay = monday.getDate();
-  const mondayMonth = monday.getMonth() + 1;
+  const mondayYear = monday.getFullYear();
 
-  // Calcule le numéro de semaine depuis le début du programme
-  // Cherche la semaine dont la plage de dates contient notre lundi
+  // Trouve la semaine dont le lundi tombe dans la plage de dates (0–6 jours après le début)
   let bestWeek = null;
-  let bestScore = Infinity;
+  let bestDiffDays = Infinity;
 
   for (const week of sessionsJson) {
-    // Essaie plusieurs champs selon ce que Claude peut avoir généré
-    const startDay = week.start_day || week.startDay || null;
-    const startMonth = week.start_month || week.startMonth || mondayMonth;
-    const weekNum = week.week_num || week.weekNum || 0;
+    const startDay   = week.start_day   || week.startDay   || null;
+    const startMonth = week.start_month || week.startMonth || null;
+    if (!startDay || !startMonth) continue;
 
-    if (startDay) {
-      // Score basé sur la proximité de la date
-      const diff = Math.abs(startDay - mondayDay) + Math.abs(startMonth - mondayMonth) * 30;
-      if (diff < bestScore) { bestScore = diff; bestWeek = week; }
-    } else if (weekNum) {
-      // Fallback : utilise le numéro de semaine
-      // Semaine 1 = lundi le plus proche de today - 7*(weekNum-1)
-      bestWeek = sessionsJson[0]; // sera affiné ci-dessous
+    // Construit la date de début de cette semaine (teste l'année courante et la précédente)
+    for (const yr of [mondayYear, mondayYear - 1, mondayYear + 1]) {
+      const weekStart = new Date(yr, startMonth - 1, startDay);
+      const diffDays  = Math.round((monday - weekStart) / (24 * 60 * 60 * 1000));
+      if (diffDays >= 0 && diffDays <= 6) {
+        // Ce lundi tombe bien dans cette semaine du plan
+        bestWeek = week;
+        bestDiffDays = 0; // correspondance exacte
+        break;
+      }
+      // Garde le score de proximité le plus faible pour le fallback
+      if (Math.abs(diffDays) < bestDiffDays) {
+        bestDiffDays = Math.abs(diffDays);
+        bestWeek = week;
+      }
     }
+    if (bestDiffDays === 0) break; // correspondance exacte trouvée
   }
 
-  // Si aucune correspondance par date, prend la semaine courante par index
-  if (!bestWeek || bestScore > 10) {
-    // Essaie de deviner la semaine en cours par rapport au début du programme
-    const today = new Date();
-    const programStart = sessionsJson[0]?.start_day
-      ? new Date(today.getFullYear(), (sessionsJson[0].start_month || today.getMonth()+1) - 1, sessionsJson[0].start_day)
-      : null;
-
-    if (programStart) {
-      const weekIdx = Math.floor((monday - programStart) / (7*24*60*60*1000));
+  // Fallback par numéro de semaine si aucune date ne correspond
+  if (!bestWeek || bestDiffDays > 6) {
+    const first = sessionsJson[0];
+    const startDay   = first?.start_day   || first?.startDay;
+    const startMonth = first?.start_month || first?.startMonth;
+    if (startDay && startMonth) {
+      const programStart = new Date(mondayYear, startMonth - 1, startDay);
+      const weekIdx = Math.floor((monday - programStart) / (7 * 24 * 60 * 60 * 1000));
       bestWeek = sessionsJson[Math.max(0, Math.min(weekIdx, sessionsJson.length - 1))];
     } else {
       bestWeek = sessionsJson[0];
@@ -3022,19 +3040,19 @@ function extractWeekFromSessionsJson(sessionsJson, monday) {
   if (!bestWeek) return {};
 
   const sessions = {};
-  (bestWeek.days || []).forEach((day, i) => {
-    if (day && day.type && !day.type.match(/^repos$|^—$|^-$/i)) {
-      sessions[i] = {
-        type: day.type,
-        duration: day.duration || '',
-        detail: day.detail || ''
-      };
-    }
+  (bestWeek.days || []).forEach((day) => {
+    // Utilise day_index fourni par Claude plutôt que la position dans le tableau
+    const idx = day.day_index ?? day.dayIndex;
+    if (idx == null || !day.type || day.type.match(/^repos$|^—$|^-$/i)) return;
+    sessions[idx] = {
+      type: day.type,
+      duration: day.duration || '',
+      detail: day.detail || ''
+    };
   });
 
   // Si on n'a trouvé aucune séance non-repos, retourne {} pour forcer le fallback texte
-  const hasRealSessions = Object.keys(sessions).length > 0;
-  return hasRealSessions ? sessions : {};
+  return Object.keys(sessions).length > 0 ? sessions : {};
 }
 
 async function analyzeWeekWithAI(monday, planned, activities, today, planId, weekStartStr, myOffset) {
@@ -3046,9 +3064,8 @@ async function analyzeWeekWithAI(monday, planned, activities, today, planId, wee
     if (dayDate > today) break;
 
     const p = planned[i];
-    const dayActivities = activities.filter(a =>
-      new Date(a.start_date_local).toDateString() === dayDate.toDateString()
-    );
+    const dayStr2 = localDateStr(dayDate);
+    const dayActivities = activities.filter(a => activityLocalDateStr(a) === dayStr2);
 
     const plannedStr = (p && !p.type?.match(/repos|—|-/i))
       ? `${p.type}${p.duration ? ' — ' + p.duration : ''}${p.detail ? ' — ' + p.detail.substring(0,80) : ''}`
@@ -3219,39 +3236,37 @@ function parsePlanForWeek(planContent, monday) {
 
   if (weekBlocks.length === 0) return {};
 
-  // ── Trouve la semaine qui contient notre lundi
+  // ── Trouve la semaine qui contient notre lundi (via calcul de dates réelles)
   let bestBlock = null;
-  let bestScore = Infinity;
+  let bestDiffDays = Infinity;
+  const mondayYear = monday.getFullYear();
 
   for (const block of weekBlocks) {
-    // Score 1 : correspondance exacte de date
-    if (block.startDay === mondayDay && block.month === mondayMonth) {
-      bestBlock = block; break;
-    }
-    // Score 2 : la plage de dates contient notre lundi
-    if (block.startDay > 0 && block.endDay > 0 && block.month === mondayMonth) {
-      if (mondayDay >= block.startDay && mondayDay <= block.endDay) {
-        bestBlock = block; break;
+    if (!block.startDay) continue;
+    // Teste l'année courante et les années adjacentes pour gérer les plans multi-annuels
+    for (const yr of [mondayYear, mondayYear - 1, mondayYear + 1]) {
+      const blockStart = new Date(yr, block.month - 1, block.startDay);
+      const diffDays   = Math.round((monday - blockStart) / (24 * 60 * 60 * 1000));
+      if (diffDays >= 0 && diffDays <= 6) {
+        // Ce lundi tombe dans cette semaine du plan
+        bestBlock = block;
+        bestDiffDays = 0;
+        break;
+      }
+      if (Math.abs(diffDays) < bestDiffDays) {
+        bestDiffDays = Math.abs(diffDays);
+        bestBlock = block;
       }
     }
-    // Score 3 : proximité de date (même mois)
-    if (block.startDay > 0 && block.month === mondayMonth) {
-      const diff = Math.abs(block.startDay - mondayDay);
-      if (diff < bestScore) { bestScore = diff; bestBlock = block; }
-    }
-    // Score 4 : proximité inter-mois
-    if (block.startDay > 0 && bestScore === Infinity) {
-      const diff = Math.abs(block.startDay - mondayDay) + Math.abs(block.month - mondayMonth) * 30;
-      if (diff < bestScore) { bestScore = diff; bestBlock = block; }
-    }
+    if (bestDiffDays === 0) break;
   }
 
-  // Score 5 : si toujours rien, utilise le numéro de semaine depuis le début du programme
-  if (!bestBlock || bestScore > 10) {
+  // Fallback par index de semaine si aucune date ne correspond
+  if (!bestBlock || bestDiffDays > 6) {
     const firstBlock = weekBlocks[0];
     if (firstBlock.startDay > 0 && firstBlock.month > 0) {
-      const programStart = new Date(monday.getFullYear(), firstBlock.month - 1, firstBlock.startDay);
-      const weeksSinceStart = Math.round((monday - programStart) / (7*24*60*60*1000));
+      const programStart = new Date(mondayYear, firstBlock.month - 1, firstBlock.startDay);
+      const weeksSinceStart = Math.round((monday - programStart) / (7 * 24 * 60 * 60 * 1000));
       const targetIdx = Math.max(0, Math.min(weeksSinceStart, weekBlocks.length - 1));
       bestBlock = weekBlocks[targetIdx];
     } else {
@@ -3315,9 +3330,8 @@ function renderWeekComparison(monday, planned, activities, today, analysis) {
         <div class="session-detail">${p.duration}${p.detail ? ' · ' + p.detail.substring(0,60) + (p.detail.length>60?'…':'') : ''}</div>`;
     }
 
-    const dayActivities = activities.filter(a =>
-      new Date(a.start_date_local).toDateString() === dayDate.toDateString()
-    );
+    const dayStr = localDateStr(dayDate);
+    const dayActivities = activities.filter(a => activityLocalDateStr(a) === dayStr);
 
     const aiDay = analysis[String(i)];
     let statusBadge = '';
@@ -3416,7 +3430,7 @@ function renderAlerts(planned, activities, today) {
     if (p && !p.type?.match(/repos|—|-/i)) {
       const monday = new Date(today); monday.setDate(today.getDate() - dayOfWeek);
       const dayDate = new Date(monday); dayDate.setDate(monday.getDate() + i);
-      const done = activities.some(a => new Date(a.start_date_local).toDateString() === dayDate.toDateString());
+      const done = activities.some(a => activityLocalDateStr(a) === localDateStr(dayDate));
       if (!done) missed++;
     }
   }
@@ -3424,7 +3438,8 @@ function renderAlerts(planned, activities, today) {
 
   // Surcharge : activité non planifiée
   const unplanned = activities.filter(a => {
-    const aDay = (new Date(a.start_date_local).getDay() + 6) % 7;
+    const [yr, mo, dy] = activityLocalDateStr(a).split('-').map(Number);
+    const aDay = (new Date(yr, mo - 1, dy).getDay() + 6) % 7;
     const p = planned[aDay];
     return !p || p.type?.match(/repos|—|-/i);
   });
@@ -3625,6 +3640,7 @@ async function loadPlans() {
   // Stocke l'id actif globalement pour le dashboard
   window._activePlanId = activePlan.id;
   window._activePlanContent = activePlan.content;
+  window._activePlanSessionsJson = activePlan.sessions_json || null;
 
   // Banner programme actif
   const banner = document.getElementById('active-plan-banner');
