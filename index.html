@@ -2736,7 +2736,14 @@ async function doLogin() {
   err.classList.remove('show');
   const { error } = await supabase.auth.signInWithPassword({ email, password: pwd });
   if (error) {
-    err.textContent = 'Email ou mot de passe incorrect.';
+    const msg = error.message || '';
+    if (msg.includes('Invalid login') || msg.includes('invalid_credentials')) {
+      err.textContent = 'Email ou mot de passe incorrect.';
+    } else if (msg.includes('Email not confirmed')) {
+      err.textContent = 'Confirme ton email avant de te connecter (vérifie ta boîte mail).';
+    } else {
+      err.textContent = 'Erreur de connexion : ' + msg;
+    }
     err.classList.add('show');
     btn.disabled = false; btn.textContent = 'Se connecter';
   } else {
