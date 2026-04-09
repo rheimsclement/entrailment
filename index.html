@@ -2717,13 +2717,31 @@ async function initAuth() {
   currentUser = session?.user || null;
   renderNav(currentUser);
 
-  // Gère le lien de reset mot de passe (hash #type=recovery&access_token=...)
-  const hashParams = new URLSearchParams(window.location.hash.substring(1));
-  if (hashParams.get('type') === 'recovery' && hashParams.get('access_token')) {
-    window._recoveryToken = hashParams.get('access_token');
-    window.history.replaceState({}, document.title, window.location.pathname);
-    showPage('reset');
-    return;
+  // Gère le lien de reset mot de passe dans le hash URL
+  if (window.location.hash) {
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const hashError = hashParams.get('error');
+    if (hashError) {
+      // Token expiré ou déjà utilisé → rediriger vers login avec message
+      window.history.replaceState({}, document.title, window.location.pathname);
+      showPage('login');
+      const errEl = document.getElementById('login-error');
+      if (errEl) {
+        const desc = hashParams.get('error_description') || '';
+        const msg = (desc.includes('expired') || desc.includes('invalid'))
+          ? 'Le lien de réinitialisation a expiré ou a déjà été utilisé. Demande un nouveau lien.'
+          : 'Erreur de réinitialisation. Demande un nouveau lien.';
+        errEl.textContent = msg;
+        errEl.classList.add('show');
+      }
+      return;
+    }
+    if (hashParams.get('type') === 'recovery' && hashParams.get('access_token')) {
+      window._recoveryToken = hashParams.get('access_token');
+      window.history.replaceState({}, document.title, window.location.pathname);
+      showPage('reset');
+      return;
+    }
   }
 
   // Gère le callback Strava si présent dans l'URL
@@ -2826,11 +2844,10 @@ async function resetPassword() {
   const btn = event?.target;
   if (btn) { btn.disabled = true; btn.textContent = 'Envoi…'; }
 
-  const redirectTo = (window.location.origin + window.location.pathname).replace(/\/$/, '');
   await fetch(`${SUPABASE_URL}/auth/v1/recover`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON },
-    body: JSON.stringify({ email, redirectTo })
+    body: JSON.stringify({ email })
   }).catch(() => {});
 
   if (btn) { btn.disabled = false; btn.textContent = 'Mot de passe oublié ?'; }
