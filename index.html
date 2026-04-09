@@ -4026,6 +4026,9 @@ Z5 — VO2max / côtes / fractionné (90–100% FCmax) — effort maximal, insou
 [5-6 points spécifiques à ce profil et à cette course]`;
 
 
+  // Rafraîchit le token avant l'appel pour éviter les 401
+  await ensureValidToken();
+
   let planText = '';
   try {
     const r = await fetch(EDGE_FUNCTION_URL, {
@@ -4051,7 +4054,15 @@ Z5 — VO2max / côtes / fractionné (90–100% FCmax) — effort maximal, insou
 
     // Réponse Anthropic normale
     if (!r.ok) {
-      content.innerHTML = `<p style="color:var(--orange)">⚠️ Erreur HTTP ${r.status} — vérifie que l'Edge Function est bien déployée dans Supabase.</p>`;
+      if (r.status === 401) {
+        content.innerHTML = `<p style="color:var(--orange)">⚠️ Erreur 401 — session expirée ou Edge Function non autorisée.<br><br>
+          <strong>Solutions :</strong><br>
+          1. Déconnecte-toi et reconnecte-toi, puis réessaie.<br>
+          2. Vérifie dans Supabase → <strong>Edge Functions → generate-plan</strong> que la fonction est bien déployée.<br>
+          3. Vérifie que le secret <code>ANTHROPIC_KEY</code> est bien configuré dans Supabase → Settings → Edge Functions → Secrets.</p>`;
+      } else {
+        content.innerHTML = `<p style="color:var(--orange)">⚠️ Erreur HTTP ${r.status} — vérifie que l'Edge Function est bien déployée dans Supabase.</p>`;
+      }
       btn.disabled=false; return;
     }
 
