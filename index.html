@@ -2826,7 +2826,7 @@ async function resetPassword() {
   const btn = event?.target;
   if (btn) { btn.disabled = true; btn.textContent = 'Envoi…'; }
 
-  const redirectTo = window.location.origin + window.location.pathname;
+  const redirectTo = (window.location.origin + window.location.pathname).replace(/\/$/, '');
   await fetch(`${SUPABASE_URL}/auth/v1/recover`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON },
