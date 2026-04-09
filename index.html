@@ -2891,7 +2891,6 @@ async function navigateWeek(dir) {
 async function loadDashboardAnalytics() { await showWeek(); }
 
 async function showWeek() {
-  console.log('[showWeek] ▶ démarrage');
   const myOff   = _weekOffset;
   const monday  = getMondayForOffset(myOff);
   const sunday  = new Date(monday); sunday.setDate(monday.getDate()+6); sunday.setHours(23,59,59,999);
@@ -2906,40 +2905,32 @@ async function showWeek() {
   const sj  = window._activePlanSessionsJson;
   const ac  = window._activePlanContent;
   const pid = window._activePlanId;
-  console.log('[showWeek] plan:', pid ? pid.substring(0,8) : 'null', '| sj:', !!sj, '| ac:', !!ac);
   let planned = {};
   if (sj) planned = extractWeekFromSessionsJson(sj, monday);
   if (!Object.keys(planned).length && ac) planned = parsePlanForWeek(ac, monday);
-  console.log('[showWeek] planned keys:', Object.keys(planned));
 
   const withTimeout = (p, ms) => Promise.race([p, new Promise((_, r) => setTimeout(() => r(new Error('timeout')), ms))]);
 
   let tokenRow = null, cachedRows = null, token = null, acts = [];
 
-  console.log('[showWeek] 1/4 → strava_tokens...');
   try {
     tokenRow = await withTimeout(
       supabase.from('strava_tokens').select('*').eq('user_id', currentUser.id).single().then(r=>r.data).catch(()=>null),
       6000
     );
-    console.log('[showWeek] 1/4 ✓ tokenRow:', tokenRow ? 'présent' : 'null');
-  } catch(e) { console.warn('[showWeek] 1/4 ✗ timeout strava_tokens:', e.message); }
+  } catch(e) {}
 
-  console.log('[showWeek] 2/4 → week_analysis...');
   try {
     cachedRows = pid ? await withTimeout(
       fetch(`${SUPABASE_URL}/rest/v1/week_analysis?user_id=eq.${currentUser.id}&plan_id=eq.${pid}&week_start=eq.${weekStr}&limit=1`,
         {headers: authHeaders()}).then(r=>r.json()).catch(()=>null),
       6000
     ) : null;
-    console.log('[showWeek] 2/4 ✓ cachedRows:', Array.isArray(cachedRows) ? cachedRows.length + ' ligne(s)' : cachedRows);
-  } catch(e) { console.warn('[showWeek] 2/4 ✗ timeout week_analysis:', e.message); }
+  } catch(e) {}
 
-  console.log('[showWeek] 3/4 → refresh token Strava...');
   try {
     token = tokenRow ? await withTimeout(refreshStravaTokenIfNeeded(tokenRow), 8000) : null;
-    console.log('[showWeek] 3/4 ✓ token:', token?.access_token ? 'valide' : 'null');
-  } catch(e) { console.warn('[showWeek] 3/4 ✗ timeout refreshStrava:', e.message); token = tokenRow; }
+  } catch(e) { token = tokenRow; }
 
   const cached = Array.isArray(cachedRows) && cachedRows.length > 0 ? cachedRows[0] : null;
   if (cached?.planned_sessions && Object.keys(cached.planned_sessions).length > 0)
@@ -2963,13 +2954,8 @@ async function showWeek() {
         const sundayStr = localDateStr(sunday);
         acts = raw.filter(a => activityLocalDateStr(a) >= mondayStr && activityLocalDateStr(a) <= sundayStr);
       }
-      console.log('[showWeek] 4/4 ✓ activités:', acts.length);
-    } catch(e) { console.warn('[showWeek] 4/4 ✗ erreur Strava API:', e.message); }
-  } else {
-    console.log('[showWeek] 4/4 — pas de token Strava');
+    } catch(e) {}
   }
-
-  console.log('[showWeek] ✅ render');
   renderWeekComparison(monday, planned, acts, refDate, analysis);
   renderKPIs(planned, acts, token, cached?.compliance_score);
   renderAlerts(planned, acts, refDate);
@@ -3326,6 +3312,7 @@ function renderWeekComparison(monday, planned, activities, today, analysis) {
   if (analysis === undefined) analysis = {};
   const container = document.getElementById('week-comparison');
   const shortNames = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  const dayNames   = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
   const hasAI = Object.keys(analysis).length > 0;
 
   const statusConfig = {
