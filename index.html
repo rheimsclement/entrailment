@@ -3781,6 +3781,8 @@ async function deletePlan(id) {
 
 async function savePlan(content, meta) {
   if (!currentUser) return false;
+  // Attendre 5s pour éviter le rate limit Anthropic (30 000 tokens/min)
+  await new Promise(r => setTimeout(r, 5000));
   const sessionsJson = await extractSessionsJson(content);
   const { error } = await supabase.from('plans').insert({
     user_id: currentUser.id,
@@ -3807,7 +3809,7 @@ async function extractSessionsJson(planContent) {
         prompt: `Extrait toutes les séances d'entraînement de ce programme trail et retourne un JSON structuré.
 
 PROGRAMME:
-${planContent.substring(0, 3000)}
+${planContent.substring(0, 1500)}
 
 Retourne un tableau JSON avec une entrée par semaine :
 [
@@ -4046,6 +4048,8 @@ Z5 — VO2max / côtes / fractionné (90–100% FCmax) — effort maximal, insou
         content.innerHTML = `<p style="color:var(--orange)">⚠️ Crédits Anthropic insuffisants. Va sur <a href="https://console.anthropic.com" target="_blank" style="color:var(--green)">console.anthropic.com</a> → Plans & Billing pour recharger.</p>`;
       } else if (msg.includes('api_key') || msg.includes('invalid')) {
         content.innerHTML = `<p style="color:var(--orange)">⚠️ Clé API invalide. Vérifie le secret ANTHROPIC_KEY dans Supabase → Settings → Edge Functions → Secrets.</p>`;
+      } else if (msg.includes('rate limit') || msg.includes('rate_limit') || msg.includes('tokens per minute')) {
+        content.innerHTML = `<p style="color:var(--orange)">⚠️ Limite de tokens atteinte (${msg.match(/[\d,]+ input tokens/)?.[0] || '30 000 tokens'}/min). Attends 60 secondes et réessaie.</p>`;
       } else {
         content.innerHTML = `<p style="color:var(--orange)">⚠️ Erreur : ${msg}</p>`;
       }
