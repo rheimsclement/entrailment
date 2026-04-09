@@ -2573,8 +2573,9 @@ async function refreshStravaTokenIfNeeded(token) {
     });
     clearTimeout(tid);
     const data = await r.json();
+    console.log('[strava-auth refresh] status:', r.status, '| response:', JSON.stringify(data).substring(0, 200));
     if (data.error || !data.access_token) {
-      console.warn('Strava token refresh failed:', data.error);
+      console.warn('Strava token refresh failed:', data.error || data.message || JSON.stringify(data));
       return token; // Retourne l'ancien token, l'appel API échouera proprement
     }
 
@@ -2918,7 +2919,8 @@ async function showWeek() {
       supabase.from('strava_tokens').select('*').eq('user_id', currentUser.id).single().then(r=>r.data).catch(()=>null),
       6000
     );
-  } catch(e) {}
+    console.log('[showWeek] tokenRow fields:', tokenRow ? Object.keys(tokenRow) : null, '| access_token:', tokenRow?.access_token ? tokenRow.access_token.substring(0,8)+'...' : tokenRow?.access_token);
+  } catch(e) { console.warn('[showWeek] tokenRow error:', e.message); }
 
   try {
     cachedRows = pid ? await withTimeout(
