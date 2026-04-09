@@ -98,6 +98,8 @@ h1 em{font-style:italic;color:var(--green)}
 .auth-switch a{color:var(--green);cursor:pointer;font-weight:500;text-decoration:none}
 .auth-error{background:#FEF2F2;border:1px solid #FCA5A5;border-radius:8px;padding:.6rem .875rem;font-size:.8rem;color:#B91C1C;margin-bottom:.75rem;display:none}
 .auth-error.show{display:block}
+.auth-success{background:#F0FFF4;border:1px solid #B7EBD0;border-radius:8px;padding:.6rem .875rem;font-size:.8rem;color:#276749;margin-bottom:.75rem;display:none}
+.auth-success.show{display:block}
 .auth-divider{display:flex;align-items:center;gap:.75rem;margin:1.25rem 0;color:var(--text3);font-size:.78rem}
 .auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
 
@@ -603,12 +605,33 @@ footer a{color:var(--green);text-decoration:none}
       <div class="auth-title">Connexion</div>
       <div class="auth-sub">Retrouve tes programmes et ton historique.</div>
       <div class="auth-error" id="login-error"></div>
+      <div class="auth-success" id="login-success"></div>
       <div class="auth-field"><label>Email</label><input type="email" id="login-email" placeholder="coach@exemple.com" onkeydown="if(event.key==='Enter')doLogin()"></div>
-      <div class="auth-field"><label>Mot de passe</label><input type="password" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="auth-field">
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <label>Mot de passe</label>
+          <button type="button" style="background:none;border:none;font-size:.75rem;color:var(--text3);cursor:pointer;padding:0;text-decoration:underline" onclick="resetPassword()">Mot de passe oublié ?</button>
+        </div>
+        <input type="password" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
       <button class="auth-submit" id="login-btn" onclick="doLogin()">Se connecter</button>
       <div class="auth-switch">Pas encore de compte ? <a onclick="showPage('register')">Créer un compte</a></div>
       <div class="auth-divider">ou</div>
       <div style="text-align:center"><button class="btn-ghost" onclick="showPage('generator')">Continuer sans compte →</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ RESET PASSWORD ══ -->
+<div class="page" id="page-reset">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-title">Nouveau mot de passe</div>
+      <div class="auth-sub">Entre ton nouveau mot de passe.</div>
+      <div class="auth-error" id="reset-error"></div>
+      <div class="auth-field"><label>Nouveau mot de passe</label><input type="password" id="reset-password" placeholder="8 caractères minimum" minlength="6" onkeydown="if(event.key==='Enter')doSetNewPassword()"></div>
+      <button class="auth-submit" id="reset-btn" onclick="doSetNewPassword()">Enregistrer le mot de passe</button>
+      <div class="auth-switch"><a onclick="showPage('login')">Retour à la connexion</a></div>
     </div>
   </div>
 </div>
@@ -2694,6 +2717,15 @@ async function initAuth() {
   currentUser = session?.user || null;
   renderNav(currentUser);
 
+  // Gère le lien de reset mot de passe (hash #type=recovery&access_token=...)
+  const hashParams = new URLSearchParams(window.location.hash.substring(1));
+  if (hashParams.get('type') === 'recovery' && hashParams.get('access_token')) {
+    window._recoveryToken = hashParams.get('access_token');
+    window.history.replaceState({}, document.title, window.location.pathname);
+    showPage('reset');
+    return;
+  }
+
   // Gère le callback Strava si présent dans l'URL
   handleStravaCallback();
 
@@ -2774,6 +2806,70 @@ async function doRegister() {
     currentUser = supabase.auth.user;
     renderNav(currentUser);
     showPage('dashboard');
+  }
+}
+
+async function resetPassword() {
+  const email = document.getElementById('login-email').value.trim();
+  const err = document.getElementById('login-error');
+  const success = document.getElementById('login-success');
+  err.classList.remove('show');
+  success.classList.remove('show');
+
+  if (!email) {
+    err.textContent = 'Entre ton adresse email ci-dessus, puis clique sur "Mot de passe oublié ?".';
+    err.classList.add('show');
+    document.getElementById('login-email').focus();
+    return;
+  }
+
+  const btn = event?.target;
+  if (btn) { btn.disabled = true; btn.textContent = 'Envoi…'; }
+
+  const redirectTo = window.location.origin + window.location.pathname;
+  await fetch(`${SUPABASE_URL}/auth/v1/recover`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON },
+    body: JSON.stringify({ email, redirectTo })
+  }).catch(() => {});
+
+  if (btn) { btn.disabled = false; btn.textContent = 'Mot de passe oublié ?'; }
+  success.textContent = `Un email a été envoyé à ${email} — vérifie ta boîte mail (et les spams).`;
+  success.classList.add('show');
+}
+
+async function doSetNewPassword() {
+  const btn = document.getElementById('reset-btn');
+  const err = document.getElementById('reset-error');
+  const pwd = document.getElementById('reset-password').value;
+
+  if (pwd.length < 6) {
+    err.textContent = 'Le mot de passe doit faire au moins 6 caractères.';
+    err.classList.add('show');
+    return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Enregistrement…';
+  err.classList.remove('show');
+
+  const r = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_ANON,
+      'Authorization': `Bearer ${window._recoveryToken}`
+    },
+    body: JSON.stringify({ password: pwd })
+  });
+  const data = await r.json().catch(() => ({}));
+
+  if (!r.ok) {
+    err.textContent = data.msg || data.message || 'Erreur lors du changement de mot de passe.';
+    err.classList.add('show');
+    btn.disabled = false; btn.textContent = 'Enregistrer le mot de passe';
+  } else {
+    btn.textContent = '✓ Mot de passe mis à jour !';
+    setTimeout(() => showPage('login'), 2000);
   }
 }
 
