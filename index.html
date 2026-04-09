@@ -2949,12 +2949,22 @@ async function showWeek() {
         {headers:{'Authorization':`Bearer ${token.access_token}`}, signal: ctrl.signal}
       ).then(r=>r.json());
       clearTimeout(tid);
+      console.log('[Strava] raw response:', Array.isArray(raw) ? `${raw.length} activités` : raw);
       if (Array.isArray(raw)) {
         const mondayStr = localDateStr(monday);
         const sundayStr = localDateStr(sunday);
+        console.log('[Strava] filtre:', mondayStr, '→', sundayStr);
         acts = raw.filter(a => activityLocalDateStr(a) >= mondayStr && activityLocalDateStr(a) <= sundayStr);
+        console.log('[Strava] activités après filtre:', acts.length);
+      } else if (raw?.errors || raw?.message) {
+        // Token expiré ou invalide → forcer reconnexion
+        console.warn('[Strava] Erreur API:', raw.message || raw.errors);
+        const area = document.getElementById('strava-connect-area');
+        if (area) area.innerHTML += `<div style="font-size:.7rem;color:#FC4C02;margin-top:4px">⚠️ Token expiré — reconnecte Strava</div>`;
       }
-    } catch(e) {}
+    } catch(e) { console.warn('[Strava] fetch error:', e.message); }
+  } else {
+    console.log('[showWeek] pas de token Strava valide', { tokenRow: !!tokenRow, token: !!token });
   }
   renderWeekComparison(monday, planned, acts, refDate, analysis);
   renderKPIs(planned, acts, token, cached?.compliance_score);
