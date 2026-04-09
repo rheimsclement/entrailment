@@ -2573,7 +2573,6 @@ async function refreshStravaTokenIfNeeded(token) {
     });
     clearTimeout(tid);
     const data = await r.json();
-    console.log('[strava-auth refresh] status:', r.status, '| response:', JSON.stringify(data).substring(0, 200));
     if (data.error || !data.access_token) {
       console.warn('Strava token refresh failed:', data.error || data.message || JSON.stringify(data));
       return token; // Retourne l'ancien token, l'appel API échouera proprement
@@ -2919,8 +2918,7 @@ async function showWeek() {
       supabase.from('strava_tokens').select('*').eq('user_id', currentUser.id).single().then(r=>r.data).catch(()=>null),
       6000
     );
-    console.log('[showWeek] tokenRow fields:', tokenRow ? Object.keys(tokenRow) : null, '| access_token:', tokenRow?.access_token ? tokenRow.access_token.substring(0,8)+'...' : tokenRow?.access_token);
-  } catch(e) { console.warn('[showWeek] tokenRow error:', e.message); }
+  } catch(e) {}
 
   try {
     cachedRows = pid ? await withTimeout(
@@ -2939,7 +2937,6 @@ async function showWeek() {
     planned = cached.planned_sessions;
   const analysis = cached?.ai_analysis || {};
 
-  console.log('[showWeek] 4/4 → activités Strava...');
   if (token?.access_token) {
     try {
       const ab = new Date(monday); ab.setDate(ab.getDate()-1);
@@ -2951,22 +2948,17 @@ async function showWeek() {
         {headers:{'Authorization':`Bearer ${token.access_token}`}, signal: ctrl.signal}
       ).then(r=>r.json());
       clearTimeout(tid);
-      console.log('[Strava] raw response:', Array.isArray(raw) ? `${raw.length} activités` : raw);
       if (Array.isArray(raw)) {
         const mondayStr = localDateStr(monday);
         const sundayStr = localDateStr(sunday);
-        console.log('[Strava] filtre:', mondayStr, '→', sundayStr);
         acts = raw.filter(a => activityLocalDateStr(a) >= mondayStr && activityLocalDateStr(a) <= sundayStr);
-        console.log('[Strava] activités après filtre:', acts.length);
       } else if (raw?.errors || raw?.message) {
         // Token expiré ou invalide → forcer reconnexion
         console.warn('[Strava] Erreur API:', raw.message || raw.errors);
         const area = document.getElementById('strava-connect-area');
         if (area) area.innerHTML += `<div style="font-size:.7rem;color:#FC4C02;margin-top:4px">⚠️ Token expiré — reconnecte Strava</div>`;
       }
-    } catch(e) { console.warn('[Strava] fetch error:', e.message); }
-  } else {
-    console.log('[showWeek] pas de token Strava valide', { tokenRow: !!tokenRow, token: !!token });
+    } catch(e) {}
   }
   renderWeekComparison(monday, planned, acts, refDate, analysis);
   renderKPIs(planned, acts, token, cached?.compliance_score);
