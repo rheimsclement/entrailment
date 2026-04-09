@@ -2844,10 +2844,11 @@ async function resetPassword() {
   const btn = event?.target;
   if (btn) { btn.disabled = true; btn.textContent = 'Envoi…'; }
 
+  const redirectTo = 'https://rheimsclement.github.io/entrailment/';
   await fetch(`${SUPABASE_URL}/auth/v1/recover`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON },
-    body: JSON.stringify({ email })
+    body: JSON.stringify({ email, redirectTo })
   }).catch(() => {});
 
   if (btn) { btn.disabled = false; btn.textContent = 'Mot de passe oublié ?'; }
