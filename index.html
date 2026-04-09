@@ -2845,10 +2845,14 @@ async function resetPassword() {
   if (btn) { btn.disabled = true; btn.textContent = 'Envoi…'; }
 
   const redirectTo = 'https://rheimsclement.github.io/entrailment/';
-  await fetch(`${SUPABASE_URL}/auth/v1/recover`, {
+  await fetch(`${SUPABASE_URL}/auth/v1/recover?redirect_to=${encodeURIComponent(redirectTo)}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON },
-    body: JSON.stringify({ email, redirectTo })
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_ANON,
+      'X-Supabase-Redirect-To': redirectTo
+    },
+    body: JSON.stringify({ email, redirect_to: redirectTo })
   }).catch(() => {});
 
   if (btn) { btn.disabled = false; btn.textContent = 'Mot de passe oublié ?'; }
