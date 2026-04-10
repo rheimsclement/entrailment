@@ -9,23 +9,25 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#F7F5F0;--bg2:#EFEDE6;--bg3:#E5E0D5;
-  --white:#FFF;--border:rgba(50,40,20,.10);--border2:rgba(50,40,20,.18);
-  --text:#1C1A14;--text2:#6A6050;--text3:#A09070;
-  --green:#2D6A4F;--green2:#40916C;--green-bg:#EAF4EF;--green-lt:#C8E6D4;
-  --orange:#BC4A1A;--orange-bg:#FDF0EA;
-  --gold:#A07830;--gold-bg:#FBF5E6;
-  --radius:10px;--radius-lg:16px;
-  --shadow:0 1px 4px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);
-  --shadow-md:0 2px 8px rgba(0,0,0,.08),0 8px 32px rgba(0,0,0,.06);
+  --bg:#F2EEE4;--bg2:#E9E4D5;--bg3:#DDD7C4;
+  --white:#FFFEFB;--border:rgba(40,30,15,.09);--border2:rgba(40,30,15,.19);
+  --text:#1A1810;--text2:#5C5445;--text3:#998B77;
+  --green:#1C5038;--green2:#2E7254;--green-bg:#E2EFEA;--green-lt:#AFC8B8;
+  --orange:#B84215;--orange-bg:#FCF0E8;
+  --gold:#98712A;--gold-bg:#FAF3E0;
+  --radius:12px;--radius-lg:20px;
+  --shadow:0 1px 3px rgba(0,0,0,.05),0 4px 20px rgba(0,0,0,.05);
+  --shadow-md:0 2px 12px rgba(0,0,0,.08),0 8px 40px rgba(0,0,0,.07);
+  --shadow-lg:0 8px 48px rgba(0,0,0,.14),0 2px 8px rgba(0,0,0,.06);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;line-height:1.6}
 
 /* ── NAV ── */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 1.75rem;height:60px;background:rgba(247,245,240,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
-.logo{font-family:'Fraunces',serif;font-weight:600;font-size:1.2rem;letter-spacing:-.01em;color:var(--text);display:flex;align-items:center;gap:8px;cursor:pointer;flex-shrink:0}
-.logo-mark{width:28px;height:28px;background:var(--green);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:68px;background:rgba(242,238,228,.85);backdrop-filter:blur(18px);border-bottom:1px solid transparent;transition:background .3s,box-shadow .3s,border-color .3s}
+nav.scrolled{background:rgba(242,238,228,.97);border-bottom-color:var(--border);box-shadow:0 2px 20px rgba(0,0,0,.07)}
+.logo{font-family:'Fraunces',serif;font-weight:700;font-size:1.22rem;letter-spacing:-.02em;color:var(--text);display:flex;align-items:center;gap:9px;cursor:pointer;flex-shrink:0}
+.logo-mark{width:30px;height:30px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(28,80,56,.35)}
 .logo span{color:var(--green)}
 .nav-center{display:flex;gap:2px}
 .nav-link{background:none;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;font-weight:500;color:var(--text2);padding:.42rem .8rem;border-radius:8px;transition:all .15s;white-space:nowrap}
@@ -39,14 +41,14 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .nav-avatar{width:30px;height:30px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green-lt);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--green);cursor:pointer}
 
 /* ── PAGES ── */
-.page{display:none;padding-top:60px}
+.page{display:none;padding-top:68px}
 .page.active{display:block}
 
 /* ── SHARED BUTTONS ── */
-.btn-primary{background:var(--green);color:#fff;border:none;border-radius:var(--radius);padding:.82rem 1.6rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:7px}
-.btn-primary:hover{background:var(--green2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(45,106,79,.25)}
-.btn-secondary{background:var(--white);color:var(--text);border:1px solid var(--border2);border-radius:var(--radius);padding:.82rem 1.4rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer;transition:all .2s}
-.btn-secondary:hover{border-color:var(--green);color:var(--green);transform:translateY(-1px)}
+.btn-primary{background:var(--green);color:#fff;border:none;border-radius:var(--radius);padding:.85rem 1.7rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .22s;display:inline-flex;align-items:center;gap:7px;letter-spacing:.01em;box-shadow:0 2px 12px rgba(28,80,56,.25)}
+.btn-primary:hover{background:var(--green2);transform:translateY(-1px);box-shadow:0 6px 24px rgba(28,80,56,.35)}
+.btn-secondary{background:var(--white);color:var(--text);border:1.5px solid var(--border2);border-radius:var(--radius);padding:.82rem 1.4rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer;transition:all .2s}
+.btn-secondary:hover{border-color:var(--green);color:var(--green);transform:translateY(-1px);box-shadow:0 4px 16px rgba(28,80,56,.1)}
 .btn-sm{background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:.28rem .65rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.75rem;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s}
 .btn-sm:hover{border-color:var(--border2);color:var(--text)}
 .btn-ghost{background:none;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;font-weight:500;color:var(--text2);padding:.4rem;transition:color .15s}
@@ -60,7 +62,7 @@ label{font-size:.8rem;font-weight:600;color:var(--text2)}
 .divider{height:1px;background:var(--border)}
 
 /* ── HOME ── */
-.hero{min-height:calc(100vh - 60px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem 3rem;text-align:center}
+.hero{min-height:calc(100vh - 68px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem 3rem;text-align:center}
 .hero-eyebrow{display:inline-flex;align-items:center;gap:7px;background:var(--green-bg);border:1px solid var(--green-lt);border-radius:100px;padding:.3rem .9rem;margin-bottom:2rem;font-size:.74rem;font-weight:600;color:var(--green);letter-spacing:.05em;text-transform:uppercase}
 .eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
@@ -78,8 +80,8 @@ h1 em{font-style:italic;color:var(--green)}
 .section-title{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.6rem,3.2vw,2.3rem);letter-spacing:-.02em;margin-bottom:.45rem}
 .section-sub{color:var(--text2);font-size:.92rem;max-width:460px;font-weight:300;line-height:1.75;margin-bottom:2.5rem}
 .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem}
-.feature-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;box-shadow:var(--shadow);transition:box-shadow .2s,transform .2s}
-.feature-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.feature-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.75rem 1.6rem;box-shadow:var(--shadow);transition:box-shadow .25s,transform .25s}
+.feature-card:hover{box-shadow:var(--shadow-md);transform:translateY(-3px)}
 .feature-icon{width:40px;height:40px;border-radius:9px;margin-bottom:.85rem;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
 .fi-g{background:var(--green-bg)}.fi-o{background:var(--orange-bg)}.fi-e{background:#F5EEE6}.fi-s{background:#EAF3FA}
 .feature-title{font-weight:600;font-size:.88rem;margin-bottom:.3rem}
@@ -87,7 +89,7 @@ h1 em{font-style:italic;color:var(--green)}
 
 /* ── AUTH PAGES ── */
 .auth-wrap{max-width:420px;margin:0 auto;padding:4rem 2rem}
-.auth-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:2.25rem;box-shadow:var(--shadow-md)}
+.auth-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:2.5rem 2.25rem;box-shadow:var(--shadow-md)}
 .auth-title{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:600;letter-spacing:-.02em;margin-bottom:.3rem}
 .auth-sub{font-size:.85rem;color:var(--text2);font-weight:300;margin-bottom:1.75rem}
 .auth-field{display:flex;flex-direction:column;gap:.35rem;margin-bottom:1rem}
@@ -106,7 +108,7 @@ h1 em{font-style:italic;color:var(--green)}
 /* ── DASHBOARD ── */
 .dash-wrap{max-width:900px;margin:0 auto;padding:2.5rem 2rem 5rem}
 .dash-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2.25rem;flex-wrap:wrap;gap:1rem}
-.dash-greeting{font-family:'Fraunces',serif;font-size:1.75rem;font-weight:600;letter-spacing:-.02em}
+.dash-greeting{font-family:'Fraunces',serif;font-size:2rem;font-weight:600;letter-spacing:-.03em}
 .dash-greeting span{color:var(--green)}
 .dash-greeting-sub{font-size:.88rem;color:var(--text2);font-weight:300;margin-top:.25rem}
 .plan-card.active-plan{border-color:var(--green);box-shadow:0 0 0 2px var(--green-lt),var(--shadow-md)}
@@ -133,7 +135,7 @@ h1 em{font-style:italic;color:var(--green)}
 /* Plan detail modal */
 .modal-overlay{position:fixed;inset:0;background:rgba(28,26,20,.5);z-index:200;display:none;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto}
 .modal-overlay.open{display:flex}
-.modal{background:var(--white);border-radius:var(--radius-lg);width:100%;max-width:720px;box-shadow:0 24px 80px rgba(0,0,0,.2);margin:auto}
+.modal{background:var(--white);border-radius:var(--radius-lg);width:100%;max-width:740px;box-shadow:var(--shadow-lg);margin:auto}
 .modal-header{display:flex;justify-content:space-between;align-items:flex-start;padding:1.6rem 1.75rem 1.2rem;border-bottom:1px solid var(--border)}
 .modal-title{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:600;letter-spacing:-.01em}
 .modal-meta{font-size:.78rem;color:var(--text2);margin-top:3px}
@@ -317,10 +319,10 @@ footer a{color:var(--green);text-decoration:none}
 
 /* ── DASHBOARD KPI ── */
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.85rem;margin-bottom:1.75rem}
-.kpi-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.1rem 1.2rem;box-shadow:var(--shadow)}
-.kpi-label{font-size:.72rem;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem}
-.kpi-val{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:600;color:var(--text);letter-spacing:-.02em;line-height:1}
-.kpi-sub{font-size:.72rem;color:var(--text3);margin-top:.25rem}
+.kpi-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.35rem 1.4rem;box-shadow:var(--shadow)}
+.kpi-label{font-size:.68rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem}
+.kpi-val{font-family:'Fraunces',serif;font-size:2rem;font-weight:600;color:var(--text);letter-spacing:-.03em;line-height:1}
+.kpi-sub{font-size:.72rem;color:var(--text3);margin-top:.3rem}
 .kpi-card.green .kpi-val{color:var(--green)}
 .kpi-card.orange .kpi-val{color:var(--orange)}
 
@@ -333,11 +335,11 @@ footer a{color:var(--green);text-decoration:none}
 
 /* ── WEEK COMPARISON ── */
 .week-comparison{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow)}
-.week-grid-header{display:grid;grid-template-columns:80px 1fr 1fr;gap:0;background:var(--bg2);padding:.55rem 1rem;font-size:.7rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
-.week-row{display:grid;grid-template-columns:80px 1fr 1fr;gap:0;padding:.7rem 1rem;border-bottom:1px solid var(--border);align-items:start;transition:background .15s}
+.week-grid-header{display:grid;grid-template-columns:90px 1fr 1fr;gap:0;background:var(--bg2);padding:.6rem 1.1rem;font-size:.68rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em}
+.week-row{display:grid;grid-template-columns:90px 1fr 1fr;gap:0;padding:.8rem 1.1rem;border-bottom:1px solid var(--border);align-items:start;transition:background .15s,border-left-color .15s}
 .week-row:last-child{border-bottom:none}
 .week-row:hover{background:var(--bg2)}
-.week-row.today{background:rgba(45,106,79,.04);border-left:3px solid var(--green)}
+.week-row.today{background:rgba(28,80,56,.04);border-left:3px solid var(--green)}
 .week-day{font-size:.78rem;font-weight:700;color:var(--text2);padding-top:.1rem}
 .week-day .date{font-size:.68rem;font-weight:400;color:var(--text3);display:block}
 .week-planned{font-size:.8rem;color:var(--text2);padding-right:.75rem;line-height:1.5}
@@ -354,7 +356,7 @@ footer a{color:var(--green);text-decoration:none}
 .status-future{background:var(--bg2);color:var(--text3)}
 
 /* ── CHART ── */
-.chart-wrap{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem 1.25rem .75rem;box-shadow:var(--shadow)}
+.chart-wrap{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem 1.5rem 1rem;box-shadow:var(--shadow)}
 .chart-bar-group{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
 .chart-bars{display:flex;gap:3px;align-items:flex-end;width:100%}
 .bar{border-radius:4px 4px 0 0;min-height:3px;transition:height .4s ease;flex:1}
@@ -418,11 +420,61 @@ footer a{color:var(--green);text-decoration:none}
 .adj-change-week{font-weight:600;color:var(--green);font-size:.8rem;margin-bottom:.25rem}
 .adj-change-desc{color:var(--text2);line-height:1.6}
 
+/* ── SESSION SWAP ── */
+.swap-mode-bar{display:none;align-items:center;justify-content:space-between;gap:1rem;background:var(--green);color:#fff;border-radius:var(--radius);padding:.85rem 1.3rem;margin-bottom:1rem;animation:fadeUp .2s ease}
+.swap-mode-bar.active{display:flex}
+.swap-mode-hint{font-size:.83rem;font-weight:400;opacity:.9;line-height:1.4}
+.swap-mode-hint strong{font-weight:700;opacity:1}
+.swap-cancel{background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.3);border-radius:9px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;padding:.38rem .9rem;transition:background .15s;white-space:nowrap}
+.swap-cancel:hover{background:rgba(255,255,255,.32)}
+.week-comparison.swap-mode .week-row{cursor:pointer}
+.week-comparison.swap-mode .week-row:hover{background:rgba(28,80,56,.07)}
+.week-row.swap-selected{background:rgba(28,80,56,.11)!important;border-left:3px solid var(--green)!important}
+.swap-mode-btn{display:inline-flex;align-items:center;gap:5px;background:var(--bg2);border:1px solid var(--border2);border-radius:9px;padding:.32rem .8rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.75rem;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s}
+.swap-mode-btn:hover{border-color:var(--green);color:var(--green);background:var(--green-bg)}
+.swap-mode-btn.active{background:var(--green);color:#fff;border-color:var(--green);box-shadow:0 2px 8px rgba(28,80,56,.25)}
+
+/* ── PDF / PRINT ── */
+.btn-pdf{display:inline-flex;align-items:center;gap:6px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:.6rem 1rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s}
+.btn-pdf:hover{border-color:var(--green);color:var(--green);background:var(--green-bg)}
+@media print{
+  nav,footer,.hero,.features-grid,.pricing-wrap,.about-wrap,#page-home,#page-pricing,#page-about,#page-generator,
+  .dash-header .btn-primary,.dash-header .btn-secondary,
+  .plan-actions,.strava-section,.activities-section,.kpi-grid,
+  .week-comparison,.chart-wrap,.dash-section-title button,.swap-mode-bar,.btn-pdf,.modal-close{display:none!important}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  body{background:#fff!important;color:#1A1810!important;font-size:10.5pt!important}
+  .page{display:block!important;padding-top:0!important}
+  #page-dashboard{display:none!important}
+  .modal-overlay{position:static!important;display:block!important;background:none!important;padding:0!important;overflow:visible!important}
+  .modal{box-shadow:none!important;border:none!important;max-width:100%!important;width:100%!important;border-radius:0!important}
+  .modal-header{border-bottom:2px solid #1C5038!important;padding:0 0 .8rem!important;margin-bottom:1.25rem}
+  .modal-title{font-size:17pt!important;color:#1C5038!important}
+  .modal-meta{font-size:9pt!important;color:#5C5445!important}
+  .modal-footer{display:none!important}
+  .modal-body{max-height:none!important;overflow:visible!important;padding:0!important}
+  .plan-week{border:1px solid #ccc!important;border-radius:6px!important;page-break-inside:avoid;margin-bottom:1rem}
+  .plan-week-header{background:#1C5038!important;color:#fff!important;padding:.5rem .9rem!important}
+  .plan-week-title{color:#fff!important;font-size:9pt!important}
+  .plan-week-phase{color:#fff!important}
+  .plan-week-volume{background:#e4eeea!important;padding:.3rem .9rem!important;font-size:8.5pt!important}
+  .plan-section-line{background:#1C5038!important}
+  .plan-section-title{font-size:11pt!important;color:#1A1810!important}
+  .plan-session{border-bottom:1px solid #e0d8cc!important}
+  .ps-day{color:#998B77!important;font-size:7pt!important}
+  .ps-type{font-size:9pt!important}
+  .ps-detail{font-size:8pt!important;color:#5C5445!important}
+  .plan-table th{background:#1C5038!important;color:#fff!important;font-size:8.5pt!important}
+  .plan-table td{font-size:8.5pt!important}
+  .plan-para,.plan-list li{font-size:9pt!important}
+  @page{margin:1.5cm 1.8cm;size:A4}
+}
+
 /* ── VIDEO HERO ── */
 .hero{position:relative;overflow:hidden}
 .hero-video-wrap{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 .hero-video-wrap video{position:absolute;top:50%;left:50%;min-width:100%;min-height:100%;width:auto;height:auto;transform:translate(-50%,-50%);object-fit:cover}
-.hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(247,245,240,.78) 0%,rgba(247,245,240,.68) 50%,rgba(247,245,240,.92) 100%);z-index:1}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(242,238,228,.84) 0%,rgba(242,238,228,.62) 45%,rgba(242,238,228,.95) 100%);z-index:1}
 .hero>*:not(.hero-video-wrap):not(.hero-overlay){position:relative;z-index:2}
 </style>
 </head>
@@ -716,10 +768,15 @@ footer a{color:var(--green);text-decoration:none}
     <div class="dash-section-title">
       <span>Semaine en cours</span>
       <div style="display:flex;align-items:center;gap:.5rem">
+        <button class="swap-mode-btn" id="swap-mode-btn" onclick="toggleSwapMode()" title="Inverser deux séances">⇄ Inverser séances</button>
         <button onclick="navigateWeek(-1)" style="background:var(--white);border:1px solid var(--border);border-radius:7px;width:28px;height:28px;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:all .15s" title="Semaine précédente">‹</button>
         <span id="week-range-label" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:.78rem;font-weight:400;color:var(--text3);min-width:130px;text-align:center"></span>
         <button onclick="navigateWeek(1)" id="week-next-btn" style="background:var(--white);border:1px solid var(--border);border-radius:7px;width:28px;height:28px;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:all .15s" title="Semaine suivante">›</button>
       </div>
+    </div>
+    <div class="swap-mode-bar" id="swap-mode-bar">
+      <span class="swap-mode-hint">Sélectionne <strong>2 jours</strong> pour inverser leurs séances</span>
+      <button class="swap-cancel" onclick="cancelSwapMode()">Annuler</button>
     </div>
     <div class="week-comparison" id="week-comparison">
       <div style="padding:2rem;text-align:center;color:var(--text3);font-size:.85rem">
@@ -763,7 +820,7 @@ footer a{color:var(--green);text-decoration:none}
     <div class="modal-body"><div class="modal-content" id="modal-content"></div></div>
     <div class="modal-footer">
       <button class="btn-sm" onclick="copyModal()">Copier</button>
-      <button class="btn-sm" onclick="exportPDF()" style="background:var(--green-bg);border-color:var(--green-lt);color:var(--green);font-weight:600">⬇ PDF</button>
+      <button class="btn-pdf" onclick="exportPDF()">↓ Exporter PDF</button>
       <button class="btn-sm" onclick="showWorkoutExport()" style="background:#EAF3FA;border-color:#B5D4F4;color:#185FA5;font-weight:600">⌚ Séances montre</button>
       <button class="btn-sm" onclick="closeModal()">Fermer</button>
     </div>
@@ -1034,7 +1091,7 @@ footer a{color:var(--green);text-decoration:none}
       <div><div class="result-title">Votre programme trail</div><div class="result-subtitle" id="result-subtitle"></div></div>
       <div class="result-actions">
         <button class="btn-sm" onclick="copyResult()">Copier</button>
-        <button class="btn-sm" onclick="exportPDF()" style="background:var(--green-bg);border-color:var(--green-lt);color:var(--green);font-weight:600">⬇ PDF</button>
+        <button class="btn-pdf" onclick="exportPDF()">↓ PDF</button>
         <button class="btn-sm" onclick="resetForm()">Nouveau</button>
       </div>
     </div>
@@ -2285,11 +2342,11 @@ async function exportPDF() {
       planMeta = '';
     }
 
-    const GREEN       = [45, 106, 79];
-    const GREEN_LIGHT = [234, 244, 239];
-    const DARK        = [28, 26, 20];
-    const GRAY        = [106, 96, 80];
-    const LIGHT_GRAY  = [245, 243, 240];
+    const GREEN       = [28, 80, 56];
+    const GREEN_LIGHT = [226, 239, 234];
+    const DARK        = [26, 24, 16];
+    const GRAY        = [92, 84, 69];
+    const LIGHT_GRAY  = [242, 238, 228];
     const W = 210; const H = 297; const ML = 18; const MR = 18; const CW = W - ML - MR;
 
     const lines = rawText.split('\n').filter(l => l.trim());
@@ -2301,7 +2358,9 @@ async function exportPDF() {
 
     // ══ PAGE 1 — COUVERTURE ══
     doc.setFillColor(...GREEN);
-    doc.rect(0, 0, W, 85, 'F');
+    doc.rect(0, 0, W, 90, 'F');
+    doc.setFillColor(175, 200, 184);
+    doc.rect(0, 88, W, 2, 'F');
 
     doc.setTextColor(255,255,255);
     doc.setFontSize(10); doc.setFont('helvetica','bold');
@@ -2347,35 +2406,46 @@ async function exportPDF() {
     const canvas = document.createElement('canvas');
     canvas.width=580; canvas.height=190;
     const ctx = canvas.getContext('2d');
-    ctx.fillStyle='#F7F5F0'; ctx.fillRect(0,0,580,190);
+    ctx.fillStyle='#F2EEE4'; ctx.fillRect(0,0,580,190);
 
-    // Parse volumes
+    // Parse volumes — try km first, then hours × 10
     const volData = [];
-    const wm = rawText.matchAll(/semaine\s+(\d+)[^\n]*\n(?:[^\n]*\n){0,10}[^\n]*volume[^:]*:?\s*[~≈]?\s*(\d+(?:[,\.]\d+)?)\s*h/gi);
-    for (const m of wm) volData.push({ w:`S${m[1]}`, h:parseFloat(m[2].replace(',','.')) });
-    if (volData.length === 0) {
-      const nm = rawText.matchAll(/~\s*(\d+(?:\.\d+)?)\s*h(?:eures?)?(?:\s*(?:\||$))/gi);
-      let idx=1;
-      for (const m of nm) { volData.push({w:`S${idx++}`, h:parseFloat(m[1])}); if(idx>12)break; }
+    const wm = rawText.matchAll(/semaine\s+(\d+)[^\n]*(?:\n[^\n]*){0,12}volume[^:]*:?\s*[~≈]?\s*(\d+(?:[,\.]\d+)?)\s*(km|h)/gi);
+    for (const m of wm) {
+      const val = parseFloat(m[2].replace(',','.'));
+      volData.push({ w:`S${m[1]}`, v: m[3].toLowerCase()==='km' ? val : val*10 });
     }
-    if (volData.length === 0) for(let i=1;i<=6;i++) volData.push({w:`S${i}`,h:7+i*0.5});
+    if (volData.length === 0) {
+      const nm = rawText.matchAll(/~\s*(\d+(?:\.\d+)?)\s*(km|h(?:eures?)?)(?:\s*(?:\||$))/gi);
+      let idx=1;
+      for (const m of nm) {
+        const isKm = /km/i.test(m[2]);
+        volData.push({w:`S${idx++}`, v: parseFloat(m[1])*(isKm?1:10)});
+        if(idx>12)break;
+      }
+    }
+    if (volData.length === 0) for(let i=1;i<=6;i++) volData.push({w:`S${i}`, v:35+i*5});
 
-    const maxH = Math.max(...volData.map(d=>d.h), 1);
+    const maxV2 = Math.max(...volData.map(d=>d.v), 1);
     const bw = (540)/volData.length;
     volData.forEach((d,i)=>{
-      const bh = (d.h/maxH)*140;
+      const bh = (d.v/maxV2)*140;
       const x = 20+i*bw;
-      ctx.fillStyle = i>=volData.length-2 ? '#C8E6D4' : '#2D6A4F';
+      const isLast = i>=volData.length-2;
+      const grad = ctx.createLinearGradient(0, 155-bh, 0, 155);
+      grad.addColorStop(0, isLast ? '#AFC8B8' : '#1C5038');
+      grad.addColorStop(1, isLast ? 'rgba(175,200,184,.4)' : 'rgba(46,114,84,.5)');
+      ctx.fillStyle = grad;
       ctx.beginPath(); ctx.roundRect(x+2,155-bh,bw-4,bh,[3,3,0,0]); ctx.fill();
-      ctx.fillStyle='#6A6050'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle='#5C5445'; ctx.font='10px sans-serif'; ctx.textAlign='center';
       ctx.fillText(d.w, x+bw/2, 172);
-      ctx.fillStyle='#2D6A4F'; ctx.font='bold 9px sans-serif';
-      ctx.fillText(`${d.h.toFixed(1)}h`, x+bw/2, 150-bh);
+      ctx.fillStyle='#1C5038'; ctx.font='bold 9px sans-serif';
+      ctx.fillText(`${Math.round(d.v)}km`, x+bw/2, 150-bh);
     });
 
     const chartImg = canvas.toDataURL('image/png');
     doc.setTextColor(...GREEN); doc.setFontSize(9); doc.setFont('helvetica','bold');
-    doc.text('Volume par semaine (heures)', ML, 146);
+    doc.text('Volume par semaine (km)', ML, 146);
     doc.addImage(chartImg,'PNG',ML,150,CW,CW*190/580);
 
     // ══ PAGE 2 — ZONES FC + PHILOSOPHIE ══
@@ -2704,6 +2774,11 @@ document.getElementById('nav-home').classList.add('active');
 document.getElementById('plan-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
 const obs = new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');}),{threshold:.1});
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// Nav scroll state
+window.addEventListener('scroll', () => {
+  document.querySelector('nav').classList.toggle('scrolled', window.scrollY > 20);
+}, {passive: true});
 
 // Lance l'auth
 initAuth();
@@ -3519,6 +3594,99 @@ function renderWeekComparison(monday, planned, activities, today, analysis) {
   container.innerHTML = html;
 }
 
+// ── SESSION SWAP ──
+let _swapFirstIdx = null;
+
+function toggleSwapMode() {
+  const btn = document.getElementById('swap-mode-btn');
+  if (btn.classList.contains('active')) { cancelSwapMode(); return; }
+  _swapFirstIdx = null;
+  btn.classList.add('active');
+  document.getElementById('swap-mode-bar').classList.add('active');
+  document.getElementById('week-comparison').classList.add('swap-mode');
+  document.getElementById('week-comparison').addEventListener('click', handleSwapClick);
+}
+
+function cancelSwapMode() {
+  _swapFirstIdx = null;
+  document.getElementById('swap-mode-btn')?.classList.remove('active');
+  document.getElementById('swap-mode-bar')?.classList.remove('active');
+  const cmp = document.getElementById('week-comparison');
+  cmp?.classList.remove('swap-mode');
+  cmp?.querySelectorAll('.week-row').forEach(r => r.classList.remove('swap-selected'));
+  cmp?.removeEventListener('click', handleSwapClick);
+  const hint = document.querySelector('.swap-mode-hint');
+  if (hint) hint.innerHTML = `Sélectionne <strong>2 jours</strong> pour inverser leurs séances`;
+}
+
+function handleSwapClick(e) {
+  const row = e.target.closest('.week-row[data-day]');
+  if (!row) return;
+  const dayIdx = parseInt(row.dataset.day);
+  const names = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  const hint = document.querySelector('.swap-mode-hint');
+  if (_swapFirstIdx === null) {
+    _swapFirstIdx = dayIdx;
+    row.classList.add('swap-selected');
+    if (hint) hint.innerHTML = `<strong>${names[dayIdx]}</strong> sélectionné — clique sur le <strong>2ème jour</strong>`;
+  } else if (dayIdx === _swapFirstIdx) {
+    row.classList.remove('swap-selected');
+    _swapFirstIdx = null;
+    if (hint) hint.innerHTML = `Sélectionne <strong>2 jours</strong> pour inverser leurs séances`;
+  } else {
+    doSwapSessions(_swapFirstIdx, dayIdx);
+  }
+}
+
+async function doSwapSessions(i, j) {
+  const sj = window._activePlanSessionsJson;
+  const pid = window._activePlanId;
+  if (!sj || !pid) { cancelSwapMode(); return; }
+
+  const monday = getMondayForOffset(_weekOffset);
+  const mondayYear = monday.getFullYear();
+  const newSj = JSON.parse(JSON.stringify(sj));
+
+  let targetWeek = null;
+  for (const week of newSj) {
+    const sd = week.start_day || week.startDay;
+    const sm = week.start_month || week.startMonth;
+    if (!sd || !sm) continue;
+    for (const yr of [mondayYear, mondayYear-1, mondayYear+1]) {
+      const ws = new Date(yr, sm-1, sd);
+      if (Math.round((monday - ws) / 86400000) >= 0 && Math.round((monday - ws) / 86400000) <= 6) {
+        targetWeek = week; break;
+      }
+    }
+    if (targetWeek) break;
+  }
+  if (!targetWeek) { cancelSwapMode(); return; }
+
+  const days = targetWeek.days || [];
+  const dayI = days.find(d => (d.day_index ?? d.dayIndex) === i);
+  const dayJ = days.find(d => (d.day_index ?? d.dayIndex) === j);
+  const rest = { type: 'Repos', duration: '', detail: '' };
+  const copyI = dayI ? { type: dayI.type, duration: dayI.duration||'', detail: dayI.detail||'' } : {...rest};
+  const copyJ = dayJ ? { type: dayJ.type, duration: dayJ.duration||'', detail: dayJ.detail||'' } : {...rest};
+
+  if (dayI) { dayI.type = copyJ.type; dayI.duration = copyJ.duration; dayI.detail = copyJ.detail; }
+  else { targetWeek.days.push({ day_index: i, ...copyJ }); }
+  if (dayJ) { dayJ.type = copyI.type; dayJ.duration = copyI.duration; dayJ.detail = copyI.detail; }
+  else { targetWeek.days.push({ day_index: j, ...copyI }); }
+
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/plans?id=eq.${pid}`, {
+      method: 'PATCH',
+      headers: { ...authHeaders(), 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ sessions_json: newSj })
+    });
+    window._activePlanSessionsJson = newSj;
+  } catch(e) { console.error('[Swap] save failed', e); }
+
+  cancelSwapMode();
+  await showWeek();
+}
+
 function renderKPIs(planned, activities, token, cachedScore) {
   const totalKm = activities.reduce((s,a) => s + a.distance/1000, 0);
   const totalElev = activities.reduce((s,a) => s + a.total_elevation_gain, 0);
@@ -3623,18 +3791,17 @@ async function renderVolumeChart(accessToken, planContent) {
 
   const data = weeks.map(w => {
     const wa = allActs.filter(a => {const d=new Date(a.start_date_local); return d>=w.start&&d<=w.end;});
-    const done = wa.reduce((s,a)=>s+a.moving_time/3600,0);
+    const done = wa.reduce((s,a)=>s+a.distance/1000,0);  // km
     const elev = wa.reduce((s,a)=>s+a.total_elevation_gain,0);
-    const planned = planContent ? estimatePlannedHours(planContent, w.start) : 0;
+    const planned = planContent ? estimatePlannedKm(planContent, w.start) : 0;
     const label = w.start.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
     return {done, planned, elev, label, isCurrent:w.isCurrent};
   });
 
-  // Canvas — prend toute la largeur du conteneur
   const canvas = document.createElement('canvas');
   const dpr = window.devicePixelRatio || 1;
   const W = container.clientWidth || 600;
-  const H = 160;
+  const H = 190;
   canvas.width = W * dpr;
   canvas.height = H * dpr;
   canvas.style.width = W + 'px';
@@ -3645,89 +3812,94 @@ async function renderVolumeChart(accessToken, planContent) {
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
 
-  const PAD = {t:18, b:32, l:36, r:12};
+  const PAD = {t:20, b:36, l:44, r:14};
   const cW = W - PAD.l - PAD.r;
   const cH = H - PAD.t - PAD.b;
 
-  const maxV = Math.max(...data.map(d=>Math.max(d.done,d.planned)), 0.5);
-  const yMax = Math.ceil(maxV + 0.5);
-  const xOf = i => PAD.l + (i/(WEEKS-1))*cW;
-  const yOf = v => PAD.t + cH - (v/yMax)*cH;
+  const maxV = Math.max(...data.map(d=>Math.max(d.done,d.planned)), 5);
+  const rawMax = maxV * 1.2;
+  const step = rawMax <= 20 ? 5 : rawMax <= 60 ? 10 : rawMax <= 120 ? 20 : 25;
+  const yMax = Math.ceil(rawMax / step) * step;
 
-  // Grille
-  ctx.strokeStyle = '#E8E4DC'; ctx.lineWidth = 0.5;
-  ctx.setLineDash([3,3]);
-  ctx.fillStyle = '#9A8F7E'; ctx.font = `${10*dpr/dpr}px sans-serif`; ctx.textAlign = 'right';
-  for (let g=0; g<=4; g++) {
-    const v = yMax*g/4, y = yOf(v);
-    ctx.beginPath(); ctx.moveTo(PAD.l, y); ctx.lineTo(W-PAD.r, y); ctx.stroke();
-    ctx.fillText(v.toFixed(1)+'h', PAD.l-4, y+4);
+  const slotW = cW / WEEKS;
+  const barW = Math.max(6, slotW * 0.42);
+  const xOf = i => PAD.l + (i + 0.5) * slotW;
+  const yOf = v => PAD.t + cH - (v / yMax) * cH;
+
+  // Grid lines
+  ctx.lineWidth = 0.5; ctx.setLineDash([3,4]);
+  ctx.fillStyle = '#998B77'; ctx.font = `10px 'Plus Jakarta Sans',sans-serif`; ctx.textAlign = 'right';
+  for (let g = 0; g <= 4; g++) {
+    const v = yMax * g / 4, y = yOf(v);
+    ctx.strokeStyle = g === 0 ? '#C8C0B0' : '#DDD7C4';
+    ctx.beginPath(); ctx.moveTo(PAD.l, y); ctx.lineTo(W - PAD.r, y); ctx.stroke();
+    ctx.fillText(Math.round(v) + 'km', PAD.l - 5, y + 4);
   }
   ctx.setLineDash([]);
 
-  // Labels X
-  ctx.textAlign = 'center'; ctx.font = '10px sans-serif';
-  data.forEach((d,i) => {
-    if (i%2!==0 && !d.isCurrent) return;
-    ctx.fillStyle = d.isCurrent ? '#2D6A4F' : '#9A8F7E';
-    ctx.font = d.isCurrent ? 'bold 10px sans-serif' : '10px sans-serif';
-    ctx.fillText(d.label, xOf(i), H-6);
+  // X labels
+  ctx.textAlign = 'center';
+  data.forEach((d, i) => {
+    if (i % 2 !== 0 && !d.isCurrent) return;
+    ctx.fillStyle = d.isCurrent ? '#1C5038' : '#998B77';
+    ctx.font = d.isCurrent ? `bold 10px 'Plus Jakarta Sans',sans-serif` : `10px 'Plus Jakarta Sans',sans-serif`;
+    ctx.fillText(d.label, xOf(i), H - 9);
   });
 
-  // Courbe prévu (pointillée)
-  const planPts = data.filter(d=>d.planned>0);
-  if (planPts.length > 1) {
-    ctx.beginPath(); ctx.setLineDash([4,3]); ctx.strokeStyle='#95C4A1'; ctx.lineWidth=1.5;
-    planPts.forEach((d,i) => {
+  // Bars — done
+  data.forEach((d, i) => {
+    if (d.done <= 0) return;
+    const bH = (d.done / yMax) * cH;
+    const x = xOf(i) - barW / 2, y = PAD.t + cH - bH;
+    const grad = ctx.createLinearGradient(0, y, 0, y + bH);
+    if (d.isCurrent) {
+      grad.addColorStop(0, '#1C5038'); grad.addColorStop(1, 'rgba(46,114,84,.55)');
+    } else {
+      grad.addColorStop(0, '#2E7254'); grad.addColorStop(1, 'rgba(175,200,184,.5)');
+    }
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    if (ctx.roundRect) { ctx.roundRect(x, y, barW, bH, [3, 3, 0, 0]); }
+    else { ctx.rect(x, y, barW, bH); }
+    ctx.fill();
+  });
+
+  // Planned line (dashed)
+  const planPts = data.filter(d => d.planned > 0);
+  if (planPts.length > 0) {
+    ctx.beginPath(); ctx.setLineDash([5, 4]); ctx.strokeStyle = '#AFC8B8'; ctx.lineWidth = 1.8;
+    planPts.forEach((d, i) => {
       const idx = data.indexOf(d);
-      i===0 ? ctx.moveTo(xOf(idx), yOf(d.planned)) : ctx.lineTo(xOf(idx), yOf(d.planned));
+      i === 0 ? ctx.moveTo(xOf(idx), yOf(d.planned)) : ctx.lineTo(xOf(idx), yOf(d.planned));
     });
     ctx.stroke(); ctx.setLineDash([]);
     planPts.forEach(d => {
-      const idx=data.indexOf(d);
-      ctx.strokeStyle='#95C4A1'; ctx.lineWidth=1.5;
-      ctx.strokeRect(xOf(idx)-3, yOf(d.planned)-3, 6, 6);
+      const idx = data.indexOf(d);
+      ctx.beginPath(); ctx.arc(xOf(idx), yOf(d.planned), 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#AFC8B8'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5;
+      ctx.fill(); ctx.stroke();
     });
   }
 
-  // Courbe réalisé (pleine)
-  const donePts = data.filter(d=>d.done>0);
-  if (donePts.length > 1) {
-    ctx.beginPath(); ctx.strokeStyle='#40916C'; ctx.lineWidth=2;
-    donePts.forEach((d,i) => {
-      const idx=data.indexOf(d);
-      i===0 ? ctx.moveTo(xOf(idx),yOf(d.done)) : ctx.lineTo(xOf(idx),yOf(d.done));
-    });
-    ctx.stroke();
-  }
-  donePts.forEach(d => {
-    const idx=data.indexOf(d);
-    ctx.beginPath(); ctx.arc(xOf(idx),yOf(d.done),4,0,Math.PI*2);
-    ctx.fillStyle = d.isCurrent?'#2D6A4F':'#40916C';
-    ctx.strokeStyle='white'; ctx.lineWidth=1.5;
-    ctx.fill(); ctx.stroke();
-  });
-
-  // Légende
+  // Legend
   const legendEl = document.getElementById('chart-legend');
   if (legendEl) legendEl.innerHTML = `
     <span style="display:flex;align-items:center;gap:5px">
-      <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="#40916C" stroke-width="2"/><circle cx="10" cy="5" r="3" fill="#40916C" stroke="white" stroke-width="1"/></svg>
-      Réalisé (h)
+      <span style="display:inline-block;width:10px;height:12px;background:linear-gradient(#1C5038,rgba(46,114,84,.5));border-radius:2px 2px 1px 1px;flex-shrink:0"></span>
+      Réalisé (km)
     </span>
     <span style="display:flex;align-items:center;gap:5px">
-      <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="#95C4A1" stroke-width="1.5" stroke-dasharray="3,2"/><rect x="7" y="2" width="6" height="6" fill="none" stroke="#95C4A1" stroke-width="1.5"/></svg>
-      Prévu (h)
+      <svg width="22" height="10" style="flex-shrink:0"><line x1="1" y1="5" x2="21" y2="5" stroke="#AFC8B8" stroke-width="1.8" stroke-dasharray="4,3"/><circle cx="11" cy="5" r="3" fill="#AFC8B8" stroke="white" stroke-width="1.2"/></svg>
+      Prévu (km)
     </span>`;
 }
 
 
-function estimatePlannedHours(content, weekStart) {
+function estimatePlannedKm(content, weekStart) {
   if (!content) return 0;
   const day = weekStart.getDate();
   const lines = content.split('\n');
   let inWeek = false;
-  // Cherche la semaine correspondante
   for (const line of lines) {
     if (line.match(/semaine\s+\d+/i)) {
       const auMatch = line.match(/(\d{1,2})\s+au\s+(\d{1,2})/i);
@@ -3740,9 +3912,15 @@ function estimatePlannedHours(content, weekStart) {
       }
     }
     if (inWeek) {
-      // Cherche "Volume cible: ~Xh" dans la ligne
+      // Try explicit km
+      const mkm = line.match(/volume[^:]*:?\s*~?\s*(\d+(?:[,\.]\d+)?)\s*km/i);
+      if (mkm) return parseFloat(mkm[1].replace(',', '.'));
+      // Try range like "X-Y km"
+      const mrange = line.match(/(\d+)\s*[-–]\s*(\d+)\s*km/i);
+      if (mrange) return (parseInt(mrange[1]) + parseInt(mrange[2])) / 2;
+      // Fallback: hours × 10 km/h (average trail pace estimate)
       const mh = line.match(/volume[^:]*:?\s*~?\s*(\d+(?:[,\.]\d+)?)\s*h/i);
-      if (mh) return parseFloat(mh[1].replace(',','.'));
+      if (mh) return parseFloat(mh[1].replace(',', '.')) * 10;
     }
   }
   return 0;
