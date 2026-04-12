@@ -9,44 +9,92 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#F7F5F0;--bg2:#EFEDE6;--bg3:#E5E0D5;
-  --white:#FFF;--border:rgba(50,40,20,.10);--border2:rgba(50,40,20,.18);
-  --text:#1C1A14;--text2:#6A6050;--text3:#A09070;
-  --green:#2D6A4F;--green2:#40916C;--green-bg:#EAF4EF;--green-lt:#C8E6D4;
-  --orange:#BC4A1A;--orange-bg:#FDF0EA;
-  --gold:#A07830;--gold-bg:#FBF5E6;
-  --radius:10px;--radius-lg:16px;
-  --shadow:0 1px 4px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);
-  --shadow-md:0 2px 8px rgba(0,0,0,.08),0 8px 32px rgba(0,0,0,.06);
+  --bg:#F2EEE4;--bg2:#E9E4D5;--bg3:#DDD7C4;
+  --white:#FFFEFB;--border:rgba(40,30,15,.09);--border2:rgba(40,30,15,.19);
+  --text:#1A1810;--text2:#5C5445;--text3:#998B77;
+  --green:#1C5038;--green2:#2E7254;--green-bg:#E2EFEA;--green-lt:#AFC8B8;
+  --orange:#B84215;--orange-bg:#FCF0E8;
+  --gold:#98712A;--gold-bg:#FAF3E0;
+  --radius:12px;--radius-lg:20px;
+  --shadow:0 1px 3px rgba(0,0,0,.05),0 4px 20px rgba(0,0,0,.05);
+  --shadow-md:0 2px 12px rgba(0,0,0,.08),0 8px 40px rgba(0,0,0,.07);
+  --shadow-lg:0 8px 48px rgba(0,0,0,.14),0 2px 8px rgba(0,0,0,.06);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;line-height:1.6}
 
 /* ── NAV ── */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 1.75rem;height:60px;background:rgba(247,245,240,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
-.logo{font-family:'Fraunces',serif;font-weight:600;font-size:1.2rem;letter-spacing:-.01em;color:var(--text);display:flex;align-items:center;gap:8px;cursor:pointer;flex-shrink:0}
-.logo-mark{width:28px;height:28px;background:var(--green);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:68px;background:rgba(242,238,228,.85);backdrop-filter:blur(18px);border-bottom:1px solid transparent;transition:background .3s,box-shadow .3s,border-color .3s}
+nav.scrolled{background:rgba(242,238,228,.97);border-bottom-color:var(--border);box-shadow:0 2px 20px rgba(0,0,0,.07)}
+.logo{font-family:'Fraunces',serif;font-weight:700;font-size:1.22rem;letter-spacing:-.02em;color:var(--text);display:flex;align-items:center;gap:9px;cursor:pointer;flex-shrink:0}
+.logo-mark{width:30px;height:30px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(28,80,56,.35)}
 .logo span{color:var(--green)}
 .nav-center{display:flex;gap:2px}
-.nav-link{background:none;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;font-weight:500;color:var(--text2);padding:.42rem .8rem;border-radius:8px;transition:all .15s;white-space:nowrap}
-.nav-link:hover{background:var(--bg2);color:var(--text)}
-.nav-link.active{background:var(--bg3);color:var(--text)}
-.nav-right{display:flex;align-items:center;gap:.75rem}
-.lang-toggle{display:flex;border:1px solid var(--border2);border-radius:8px;overflow:hidden}
-.lang-btn{background:none;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:.78rem;font-weight:600;color:var(--text2);padding:.32rem .65rem;transition:all .15s}
+.nav-link{position:relative;background:none;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;font-weight:500;color:var(--text2);padding:.42rem .8rem;border-radius:8px;transition:all .15s;white-space:nowrap}
+.nav-link:hover{color:var(--text)}
+.nav-link.active{color:var(--text);font-weight:600}
+.nav-link.active::after{content:'';position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:14px;height:2.5px;background:var(--green);border-radius:2px}
+/* ── Nav auth area ── */
+.nav-right{display:flex;align-items:center;gap:.65rem}
+.lang-toggle{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.lang-btn{background:none;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:.75rem;font-weight:600;color:var(--text3);padding:.28rem .58rem;transition:all .15s}
 .lang-btn.active{background:var(--green);color:#fff}
-#nav-auth-area{display:flex;align-items:center;gap:.5rem}
-.nav-avatar{width:30px;height:30px;border-radius:50%;background:var(--green-bg);border:1.5px solid var(--green-lt);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--green);cursor:pointer}
+#nav-auth-area{display:flex;align-items:center;gap:.45rem}
+/* Chip "Mon espace" — utilisateur connecté */
+.nav-user-chip{display:flex;align-items:center;gap:.45rem;background:var(--white);border:1.5px solid var(--border2);border-radius:100px;padding:.28rem .7rem .28rem .3rem;cursor:pointer;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.nav-user-chip:hover{border-color:var(--green);box-shadow:0 3px 14px rgba(28,80,56,.14)}
+.nav-user-avatar{width:26px;height:26px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:#fff;flex-shrink:0;letter-spacing:.03em}
+.nav-user-name{font-size:.78rem;font-weight:600;color:var(--text);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav-user-chevron{width:13px;height:13px;color:var(--text3);flex-shrink:0;transition:transform .2s}
+.nav-user-chip:hover .nav-user-chevron{transform:translateX(1px)}
+/* Bouton déconnexion — discret */
+.nav-signout-btn{width:30px;height:30px;border-radius:8px;background:none;border:1px solid transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text3);transition:all .15s;flex-shrink:0}
+.nav-signout-btn:hover{background:var(--bg2);border-color:var(--border);color:var(--text2)}
+/* CTA "Se connecter" — état déconnecté */
+.nav-cta{display:inline-flex;align-items:center;gap:5px;background:var(--green);color:#fff;border:none;border-radius:100px;padding:.38rem 1rem .38rem .8rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .22s;box-shadow:0 2px 10px rgba(28,80,56,.28);letter-spacing:.01em;flex-shrink:0}
+.nav-cta:hover{background:var(--green2);transform:translateY(-1px);box-shadow:0 5px 20px rgba(28,80,56,.38)}
+.nav-cta-arrow{transition:transform .2s}
+.nav-cta:hover .nav-cta-arrow{transform:translateX(2px)}
+/* ── Hamburger ── */
+.nav-hamburger{display:none;flex-direction:column;justify-content:center;align-items:center;gap:5px;width:36px;height:36px;background:none;border:1px solid var(--border);border-radius:9px;cursor:pointer;transition:all .15s;flex-shrink:0}
+.nav-hamburger:hover{background:var(--bg2);border-color:var(--border2)}
+.nav-hamburger span{display:block;width:15px;height:1.5px;background:var(--text2);border-radius:2px;transition:all .25s}
+.nav-hamburger.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+.nav-hamburger.open span:nth-child(2){opacity:0;transform:scaleX(0)}
+.nav-hamburger.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+/* ── Mobile panel ── */
+.nav-mobile-backdrop{position:fixed;inset:0;top:68px;z-index:98;background:rgba(26,24,16,.3);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .22s}
+.nav-mobile-backdrop.open{opacity:1;pointer-events:auto}
+.nav-mobile-panel{position:fixed;top:68px;left:0;right:0;z-index:99;background:var(--white);border-bottom:1px solid var(--border);box-shadow:0 16px 48px rgba(0,0,0,.12);transform:translateY(-6px);opacity:0;pointer-events:none;transition:transform .22s cubic-bezier(.4,0,.2,1),opacity .22s;padding:.75rem 1rem 1.25rem}
+.nav-mobile-panel.open{transform:translateY(0);opacity:1;pointer-events:auto}
+.nav-mobile-link{display:flex;align-items:center;width:100%;background:none;border:none;padding:.72rem .75rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.92rem;font-weight:500;color:var(--text2);cursor:pointer;border-radius:9px;transition:all .15s;text-align:left}
+.nav-mobile-link:hover,.nav-mobile-link.active{background:var(--bg2);color:var(--text);font-weight:600}
+.nav-mobile-sep{height:1px;background:var(--border);margin:.5rem 0}
+.nav-mobile-cta{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;background:var(--green);color:#fff;border:none;border-radius:100px;padding:.72rem 1rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;margin-top:.65rem;transition:background .2s;box-shadow:0 2px 12px rgba(28,80,56,.25)}
+.nav-mobile-cta:hover{background:var(--green2)}
+.nav-mobile-user{display:flex;align-items:center;gap:.65rem;padding:.65rem .75rem;margin-bottom:.25rem}
+.nav-mobile-user-avatar{width:34px;height:34px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#fff;flex-shrink:0}
+.nav-mobile-user-info{flex:1;min-width:0}
+.nav-mobile-user-name{font-size:.85rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-mobile-user-label{font-size:.72rem;color:var(--text3);margin-top:1px}
+@media(max-width:820px){
+  .nav-center{display:none}
+  .lang-toggle{display:none}
+  .nav-hamburger{display:flex}
+}
+@media(max-width:640px){
+  nav{padding:0 1rem}
+}
 
 /* ── PAGES ── */
-.page{display:none;padding-top:60px}
+.page{display:none;padding-top:68px}
 .page.active{display:block}
 
 /* ── SHARED BUTTONS ── */
-.btn-primary{background:var(--green);color:#fff;border:none;border-radius:var(--radius);padding:.82rem 1.6rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:7px}
-.btn-primary:hover{background:var(--green2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(45,106,79,.25)}
-.btn-secondary{background:var(--white);color:var(--text);border:1px solid var(--border2);border-radius:var(--radius);padding:.82rem 1.4rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer;transition:all .2s}
-.btn-secondary:hover{border-color:var(--green);color:var(--green);transform:translateY(-1px)}
+.btn-primary{background:var(--green);color:#fff;border:none;border-radius:var(--radius);padding:.85rem 1.7rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .22s;display:inline-flex;align-items:center;gap:7px;letter-spacing:.01em;box-shadow:0 2px 12px rgba(28,80,56,.25)}
+.btn-primary:hover{background:var(--green2);transform:translateY(-1px);box-shadow:0 6px 24px rgba(28,80,56,.35)}
+.btn-secondary{background:var(--white);color:var(--text);border:1.5px solid var(--border2);border-radius:var(--radius);padding:.82rem 1.4rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer;transition:all .2s}
+.btn-secondary:hover{border-color:var(--green);color:var(--green);transform:translateY(-1px);box-shadow:0 4px 16px rgba(28,80,56,.1)}
 .btn-sm{background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:.28rem .65rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.75rem;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s}
 .btn-sm:hover{border-color:var(--border2);color:var(--text)}
 .btn-ghost{background:none;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;font-weight:500;color:var(--text2);padding:.4rem;transition:color .15s}
@@ -60,7 +108,7 @@ label{font-size:.8rem;font-weight:600;color:var(--text2)}
 .divider{height:1px;background:var(--border)}
 
 /* ── HOME ── */
-.hero{min-height:calc(100vh - 60px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem 3rem;text-align:center}
+.hero{min-height:calc(100vh - 68px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem 3rem;text-align:center}
 .hero-eyebrow{display:inline-flex;align-items:center;gap:7px;background:var(--green-bg);border:1px solid var(--green-lt);border-radius:100px;padding:.3rem .9rem;margin-bottom:2rem;font-size:.74rem;font-weight:600;color:var(--green);letter-spacing:.05em;text-transform:uppercase}
 .eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
@@ -78,8 +126,8 @@ h1 em{font-style:italic;color:var(--green)}
 .section-title{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.6rem,3.2vw,2.3rem);letter-spacing:-.02em;margin-bottom:.45rem}
 .section-sub{color:var(--text2);font-size:.92rem;max-width:460px;font-weight:300;line-height:1.75;margin-bottom:2.5rem}
 .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem}
-.feature-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;box-shadow:var(--shadow);transition:box-shadow .2s,transform .2s}
-.feature-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.feature-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.75rem 1.6rem;box-shadow:var(--shadow);transition:box-shadow .25s,transform .25s}
+.feature-card:hover{box-shadow:var(--shadow-md);transform:translateY(-3px)}
 .feature-icon{width:40px;height:40px;border-radius:9px;margin-bottom:.85rem;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
 .fi-g{background:var(--green-bg)}.fi-o{background:var(--orange-bg)}.fi-e{background:#F5EEE6}.fi-s{background:#EAF3FA}
 .feature-title{font-weight:600;font-size:.88rem;margin-bottom:.3rem}
@@ -87,7 +135,7 @@ h1 em{font-style:italic;color:var(--green)}
 
 /* ── AUTH PAGES ── */
 .auth-wrap{max-width:420px;margin:0 auto;padding:4rem 2rem}
-.auth-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:2.25rem;box-shadow:var(--shadow-md)}
+.auth-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:2.5rem 2.25rem;box-shadow:var(--shadow-md)}
 .auth-title{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:600;letter-spacing:-.02em;margin-bottom:.3rem}
 .auth-sub{font-size:.85rem;color:var(--text2);font-weight:300;margin-bottom:1.75rem}
 .auth-field{display:flex;flex-direction:column;gap:.35rem;margin-bottom:1rem}
@@ -106,7 +154,7 @@ h1 em{font-style:italic;color:var(--green)}
 /* ── DASHBOARD ── */
 .dash-wrap{max-width:900px;margin:0 auto;padding:2.5rem 2rem 5rem}
 .dash-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2.25rem;flex-wrap:wrap;gap:1rem}
-.dash-greeting{font-family:'Fraunces',serif;font-size:1.75rem;font-weight:600;letter-spacing:-.02em}
+.dash-greeting{font-family:'Fraunces',serif;font-size:2rem;font-weight:600;letter-spacing:-.03em}
 .dash-greeting span{color:var(--green)}
 .dash-greeting-sub{font-size:.88rem;color:var(--text2);font-weight:300;margin-top:.25rem}
 .plan-card.active-plan{border-color:var(--green);box-shadow:0 0 0 2px var(--green-lt),var(--shadow-md)}
@@ -133,7 +181,7 @@ h1 em{font-style:italic;color:var(--green)}
 /* Plan detail modal */
 .modal-overlay{position:fixed;inset:0;background:rgba(28,26,20,.5);z-index:200;display:none;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto}
 .modal-overlay.open{display:flex}
-.modal{background:var(--white);border-radius:var(--radius-lg);width:100%;max-width:720px;box-shadow:0 24px 80px rgba(0,0,0,.2);margin:auto}
+.modal{background:var(--white);border-radius:var(--radius-lg);width:100%;max-width:740px;box-shadow:var(--shadow-lg);margin:auto}
 .modal-header{display:flex;justify-content:space-between;align-items:flex-start;padding:1.6rem 1.75rem 1.2rem;border-bottom:1px solid var(--border)}
 .modal-title{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:600;letter-spacing:-.01em}
 .modal-meta{font-size:.78rem;color:var(--text2);margin-top:3px}
@@ -317,10 +365,10 @@ footer a{color:var(--green);text-decoration:none}
 
 /* ── DASHBOARD KPI ── */
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.85rem;margin-bottom:1.75rem}
-.kpi-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.1rem 1.2rem;box-shadow:var(--shadow)}
-.kpi-label{font-size:.72rem;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem}
-.kpi-val{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:600;color:var(--text);letter-spacing:-.02em;line-height:1}
-.kpi-sub{font-size:.72rem;color:var(--text3);margin-top:.25rem}
+.kpi-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.35rem 1.4rem;box-shadow:var(--shadow)}
+.kpi-label{font-size:.68rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem}
+.kpi-val{font-family:'Fraunces',serif;font-size:2rem;font-weight:600;color:var(--text);letter-spacing:-.03em;line-height:1}
+.kpi-sub{font-size:.72rem;color:var(--text3);margin-top:.3rem}
 .kpi-card.green .kpi-val{color:var(--green)}
 .kpi-card.orange .kpi-val{color:var(--orange)}
 
@@ -333,11 +381,11 @@ footer a{color:var(--green);text-decoration:none}
 
 /* ── WEEK COMPARISON ── */
 .week-comparison{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow)}
-.week-grid-header{display:grid;grid-template-columns:80px 1fr 1fr;gap:0;background:var(--bg2);padding:.55rem 1rem;font-size:.7rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
-.week-row{display:grid;grid-template-columns:80px 1fr 1fr;gap:0;padding:.7rem 1rem;border-bottom:1px solid var(--border);align-items:start;transition:background .15s}
+.week-grid-header{display:grid;grid-template-columns:90px 1fr 1fr;gap:0;background:var(--bg2);padding:.6rem 1.1rem;font-size:.68rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em}
+.week-row{display:grid;grid-template-columns:90px 1fr 1fr;gap:0;padding:.8rem 1.1rem;border-bottom:1px solid var(--border);align-items:start;transition:background .15s,border-left-color .15s}
 .week-row:last-child{border-bottom:none}
 .week-row:hover{background:var(--bg2)}
-.week-row.today{background:rgba(45,106,79,.04);border-left:3px solid var(--green)}
+.week-row.today{background:rgba(28,80,56,.04);border-left:3px solid var(--green)}
 .week-day{font-size:.78rem;font-weight:700;color:var(--text2);padding-top:.1rem}
 .week-day .date{font-size:.68rem;font-weight:400;color:var(--text3);display:block}
 .week-planned{font-size:.8rem;color:var(--text2);padding-right:.75rem;line-height:1.5}
@@ -354,7 +402,7 @@ footer a{color:var(--green);text-decoration:none}
 .status-future{background:var(--bg2);color:var(--text3)}
 
 /* ── CHART ── */
-.chart-wrap{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem 1.25rem .75rem;box-shadow:var(--shadow)}
+.chart-wrap{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem 1.5rem 1rem;box-shadow:var(--shadow)}
 .chart-bar-group{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
 .chart-bars{display:flex;gap:3px;align-items:flex-end;width:100%}
 .bar{border-radius:4px 4px 0 0;min-height:3px;transition:height .4s ease;flex:1}
@@ -418,11 +466,119 @@ footer a{color:var(--green);text-decoration:none}
 .adj-change-week{font-weight:600;color:var(--green);font-size:.8rem;margin-bottom:.25rem}
 .adj-change-desc{color:var(--text2);line-height:1.6}
 
+/* ── SESSION SWAP ── */
+.swap-mode-bar{display:none;align-items:center;justify-content:space-between;gap:1rem;background:var(--green);color:#fff;border-radius:var(--radius);padding:.85rem 1.3rem;margin-bottom:1rem;animation:fadeUp .2s ease}
+.swap-mode-bar.active{display:flex}
+.swap-mode-hint{font-size:.83rem;font-weight:400;opacity:.9;line-height:1.4}
+.swap-mode-hint strong{font-weight:700;opacity:1}
+.swap-cancel{background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.3);border-radius:9px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;padding:.38rem .9rem;transition:background .15s;white-space:nowrap}
+.swap-cancel:hover{background:rgba(255,255,255,.32)}
+.week-comparison.swap-mode .week-row{cursor:pointer}
+.week-comparison.swap-mode .week-row:hover{background:rgba(28,80,56,.07)}
+.week-row.swap-selected{background:rgba(28,80,56,.11)!important;border-left:3px solid var(--green)!important}
+.swap-mode-btn{display:inline-flex;align-items:center;gap:5px;background:var(--bg2);border:1px solid var(--border2);border-radius:9px;padding:.32rem .8rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.75rem;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s}
+.swap-mode-btn:hover{border-color:var(--green);color:var(--green);background:var(--green-bg)}
+.swap-mode-btn.active{background:var(--green);color:#fff;border-color:var(--green);box-shadow:0 2px 8px rgba(28,80,56,.25)}
+
+/* ── PDF / PRINT ── */
+.btn-pdf{display:inline-flex;align-items:center;gap:6px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:.6rem 1rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s}
+.btn-pdf:hover{border-color:var(--green);color:var(--green);background:var(--green-bg)}
+@media print{
+  nav,footer,.hero,.features-grid,.pricing-wrap,.about-wrap,#page-home,#page-pricing,#page-about,#page-generator,
+  .dash-header .btn-primary,.dash-header .btn-secondary,
+  .plan-actions,.strava-section,.activities-section,.kpi-grid,
+  .week-comparison,.chart-wrap,.dash-section-title button,.swap-mode-bar,.btn-pdf,.modal-close{display:none!important}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  body{background:#fff!important;color:#1A1810!important;font-size:10.5pt!important}
+  .page{display:block!important;padding-top:0!important}
+  #page-dashboard{display:none!important}
+  .modal-overlay{position:static!important;display:block!important;background:none!important;padding:0!important;overflow:visible!important}
+  .modal{box-shadow:none!important;border:none!important;max-width:100%!important;width:100%!important;border-radius:0!important}
+  .modal-header{border-bottom:2px solid #1C5038!important;padding:0 0 .8rem!important;margin-bottom:1.25rem}
+  .modal-title{font-size:17pt!important;color:#1C5038!important}
+  .modal-meta{font-size:9pt!important;color:#5C5445!important}
+  .modal-footer{display:none!important}
+  .modal-body{max-height:none!important;overflow:visible!important;padding:0!important}
+  .plan-week{border:1px solid #ccc!important;border-radius:6px!important;page-break-inside:avoid;margin-bottom:1rem}
+  .plan-week-header{background:#1C5038!important;color:#fff!important;padding:.5rem .9rem!important}
+  .plan-week-title{color:#fff!important;font-size:9pt!important}
+  .plan-week-phase{color:#fff!important}
+  .plan-week-volume{background:#e4eeea!important;padding:.3rem .9rem!important;font-size:8.5pt!important}
+  .plan-section-line{background:#1C5038!important}
+  .plan-section-title{font-size:11pt!important;color:#1A1810!important}
+  .plan-session{border-bottom:1px solid #e0d8cc!important}
+  .ps-day{color:#998B77!important;font-size:7pt!important}
+  .ps-type{font-size:9pt!important}
+  .ps-detail{font-size:8pt!important;color:#5C5445!important}
+  .plan-table th{background:#1C5038!important;color:#fff!important;font-size:8.5pt!important}
+  .plan-table td{font-size:8.5pt!important}
+  .plan-para,.plan-list li{font-size:9pt!important}
+  @page{margin:1.5cm 1.8cm;size:A4}
+}
+
+/* ── FATIGUE / CHARGE ── */
+.kpi-card.fresh{border-color:var(--green-lt);background:linear-gradient(135deg,var(--white) 0%,var(--green-bg) 100%)}
+.kpi-card.tired{border-color:#FECACA;background:linear-gradient(135deg,var(--white) 0%,#FEF2F2 100%)}
+.kpi-val.positive{color:var(--green)}
+.kpi-val.negative{color:var(--orange)}
+.kpi-val.neutral{color:var(--gold)}
+.fatigue-chart-wrap{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem 1.5rem 1rem;box-shadow:var(--shadow);margin-top:.85rem}
+
+/* ── ADAPT WEEK ── */
+.adapt-btn{display:inline-flex;align-items:center;gap:5px;background:var(--orange-bg);border:1px solid rgba(184,66,21,.22);border-radius:9px;padding:.32rem .8rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.75rem;font-weight:600;color:var(--orange);cursor:pointer;transition:all .15s}
+.adapt-btn:hover{background:var(--orange);color:#fff;border-color:var(--orange)}
+.adapt-context{display:flex;gap:1rem;flex-wrap:wrap;background:var(--bg2);border-radius:var(--radius);padding:.85rem 1rem;margin-bottom:1rem;font-size:.8rem}
+.adapt-context-item{display:flex;flex-direction:column;gap:1px}
+.adapt-context-lbl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3)}
+.adapt-context-val{font-family:'Fraunces',serif;font-weight:600;font-size:1.1rem;letter-spacing:-.02em}
+.adapt-sessions-preview{display:flex;flex-direction:column;gap:3px;margin-bottom:1rem}
+.adapt-session-row{display:grid;grid-template-columns:52px 1fr;gap:.5rem;padding:.45rem .7rem;background:var(--white);border:1px solid var(--border);border-radius:8px;font-size:.8rem;align-items:start}
+.adapt-day-lbl{font-size:.65rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;padding-top:2px}
+.adapt-reasoning{background:var(--green-bg);border:1px solid var(--green-lt);border-radius:var(--radius);padding:.8rem 1rem;font-size:.83rem;color:var(--green);line-height:1.65;margin-bottom:1rem;font-style:italic}
+.adapt-result-row{display:grid;grid-template-columns:52px 1fr;gap:.5rem;padding:.5rem .7rem;border-radius:8px;font-size:.8rem;align-items:start}
+.adapt-result-row.changed{background:var(--green-bg);border:1px solid var(--green-lt)}
+.adapt-result-row.rest{background:var(--bg2);opacity:.7}
+
+/* ── QUICK START PROFILES (point 5) ── */
+.qp-section{margin-bottom:1.75rem}
+.qp-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:.65rem;display:flex;align-items:center;gap:6px}
+.quick-profiles{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem}
+.qp-card{background:var(--white);border:2px solid var(--border);border-radius:var(--radius-lg);padding:1.1rem 1.2rem;cursor:pointer;transition:all .18s;box-shadow:var(--shadow);text-align:left;width:100%}
+.qp-card:hover{border-color:var(--green-lt);box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.qp-card.active{border-color:var(--green);background:var(--green-bg)}
+.qp-icon{font-size:1.4rem;margin-bottom:.4rem}
+.qp-name{font-family:'Fraunces',serif;font-size:.95rem;font-weight:600;color:var(--text);margin-bottom:.2rem}
+.qp-desc{font-size:.7rem;color:var(--text3);line-height:1.5}
+.qp-badge{display:inline-block;background:var(--bg2);border-radius:100px;font-size:.62rem;font-weight:700;padding:.1rem .55rem;color:var(--text2);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.04em}
+@media(max-width:600px){.quick-profiles{grid-template-columns:1fr}}
+
+/* ── STRAVA ACTIVITY FILTERS (point 7) ── */
+.strava-filter-bar{display:flex;gap:.5rem;flex-wrap:wrap}
+.strava-filter-group{display:flex;gap:.3rem;flex-wrap:wrap}
+.strava-filter-btn{background:var(--white);border:1px solid var(--border);border-radius:7px;padding:.22rem .65rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.72rem;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s}
+.strava-filter-btn:hover{border-color:var(--green-lt)}
+.strava-filter-btn.active{background:var(--green);border-color:var(--green);color:#fff}
+
+/* ── MOBILE (point 6) ── */
+@media(max-width:640px){
+  .modal-overlay{padding:0;align-items:flex-end}
+  .modal{border-radius:var(--radius-lg) var(--radius-lg) 0 0;max-width:100%!important;width:100%;margin:0}
+  .modal-body{max-height:65svh!important}
+  .week-grid-header,.week-row{grid-template-columns:72px 1fr 1fr;font-size:.73rem;padding:.65rem .85rem}
+  .plan-session{grid-template-columns:40px 1fr;gap:.35rem}
+  .ps-day{font-size:.62rem}
+  .dash-wrap{padding:1.25rem 1rem 5rem}
+  .gen-wrap{padding:1.75rem 1rem 5rem}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .dash-section-title{flex-wrap:wrap;gap:.5rem}
+  .quick-profiles{grid-template-columns:1fr}
+}
+
 /* ── VIDEO HERO ── */
 .hero{position:relative;overflow:hidden}
 .hero-video-wrap{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 .hero-video-wrap video{position:absolute;top:50%;left:50%;min-width:100%;min-height:100%;width:auto;height:auto;transform:translate(-50%,-50%);object-fit:cover}
-.hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(247,245,240,.78) 0%,rgba(247,245,240,.68) 50%,rgba(247,245,240,.92) 100%);z-index:1}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(242,238,228,.84) 0%,rgba(242,238,228,.62) 45%,rgba(242,238,228,.95) 100%);z-index:1}
 .hero>*:not(.hero-video-wrap):not(.hero-overlay){position:relative;z-index:2}
 </style>
 </head>
@@ -437,7 +593,6 @@ footer a{color:var(--green);text-decoration:none}
   <div class="nav-center">
     <button class="nav-link" onclick="showPage('home')" id="nav-home">Accueil</button>
     <button class="nav-link" onclick="showPage('generator')" id="nav-generator">Générateur</button>
-    <button class="nav-link" onclick="showPage('pricing')" id="nav-pricing">Tarifs</button>
     <button class="nav-link" onclick="showPage('about')" id="nav-about">À propos</button>
   </div>
   <div class="nav-right">
@@ -446,8 +601,23 @@ footer a{color:var(--green);text-decoration:none}
       <button class="lang-btn" onclick="setLang('en')">EN</button>
     </div>
     <div id="nav-auth-area"><!-- filled by JS --></div>
+    <!-- Hamburger — visible ≤820px -->
+    <button class="nav-hamburger" id="nav-hamburger" onclick="toggleMobileMenu()" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+
+<!-- ══ MOBILE NAV PANEL ══ -->
+<div class="nav-mobile-backdrop" id="nav-mobile-backdrop" onclick="closeMobileMenu()"></div>
+<!-- aria-hidden="true" when closed so getByRole() doesn't pick up duplicate button names -->
+<div class="nav-mobile-panel" id="nav-mobile-panel" role="dialog" aria-label="Menu navigation" aria-hidden="true">
+  <div id="nav-mobile-user-area"><!-- filled by renderNav --></div>
+  <button class="nav-mobile-link" onclick="mobileNav('home')" id="nav-mob-home">Accueil</button>
+  <button class="nav-mobile-link" onclick="mobileNav('generator')" id="nav-mob-generator">Générateur</button>
+  <button class="nav-mobile-link" onclick="mobileNav('about')" id="nav-mob-about">À propos</button>
+  <div id="nav-mobile-auth-actions"><!-- filled by renderNav --></div>
+</div>
 
 <!-- ══ HOME ══ -->
 <div class="page active" id="page-home">
@@ -716,10 +886,16 @@ footer a{color:var(--green);text-decoration:none}
     <div class="dash-section-title">
       <span>Semaine en cours</span>
       <div style="display:flex;align-items:center;gap:.5rem">
+        <button class="adapt-btn" id="adapt-week-btn" onclick="openAdaptModal()" title="Adapter la semaine avec l'IA">✦ Adapter la semaine</button>
+        <button class="swap-mode-btn" id="swap-mode-btn" onclick="toggleSwapMode()" title="Inverser deux séances">⇄ Inverser séances</button>
         <button onclick="navigateWeek(-1)" style="background:var(--white);border:1px solid var(--border);border-radius:7px;width:28px;height:28px;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:all .15s" title="Semaine précédente">‹</button>
         <span id="week-range-label" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:.78rem;font-weight:400;color:var(--text3);min-width:130px;text-align:center"></span>
         <button onclick="navigateWeek(1)" id="week-next-btn" style="background:var(--white);border:1px solid var(--border);border-radius:7px;width:28px;height:28px;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:all .15s" title="Semaine suivante">›</button>
       </div>
+    </div>
+    <div class="swap-mode-bar" id="swap-mode-bar">
+      <span class="swap-mode-hint">Sélectionne <strong>2 jours</strong> pour inverser leurs séances</span>
+      <button class="swap-cancel" onclick="cancelSwapMode()">Annuler</button>
     </div>
     <div class="week-comparison" id="week-comparison">
       <div style="padding:2rem;text-align:center;color:var(--text3);font-size:.85rem">
@@ -740,6 +916,51 @@ footer a{color:var(--green);text-decoration:none}
       </div>
     </div>
 
+    <!-- Charge d'entraînement (fatigue/CTL/ATL) -->
+    <div id="fatigue-block" style="display:none">
+      <div class="dash-section-title" style="margin-top:2rem">
+        <span>Charge d'entraînement</span>
+        <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:.78rem;font-weight:400;color:var(--text3)">42 derniers jours</span>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-card" id="kpi-ctl-card">
+          <div class="kpi-label">Fitness (CTL)</div>
+          <div class="kpi-val" id="kpi-ctl-val">—</div>
+          <div class="kpi-sub">Base aérobie · 42 jours</div>
+        </div>
+        <div class="kpi-card" id="kpi-atl-card">
+          <div class="kpi-label">Fatigue (ATL)</div>
+          <div class="kpi-val" id="kpi-atl-val">—</div>
+          <div class="kpi-sub">Charge récente · 7 jours</div>
+        </div>
+        <div class="kpi-card" id="kpi-tsb-card">
+          <div class="kpi-label">Forme (TSB)</div>
+          <div class="kpi-val" id="kpi-tsb-val">—</div>
+          <div class="kpi-sub" id="kpi-tsb-sub">CTL − ATL</div>
+        </div>
+      </div>
+      <div class="fatigue-chart-wrap">
+        <div id="fatigue-chart" style="width:100%"></div>
+        <div style="display:flex;gap:1.25rem;margin-top:.75rem;font-size:.72rem;color:var(--text2)">
+          <span style="display:flex;align-items:center;gap:5px">
+            <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="#1C5038" stroke-width="2"/></svg>Fitness CTL
+          </span>
+          <span style="display:flex;align-items:center;gap:5px">
+            <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="#B84215" stroke-width="1.8" stroke-dasharray="4,3"/></svg>Fatigue ATL
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activités Strava -->
+    <div id="strava-activities" style="display:none">
+      <div class="dash-section-title" style="margin-top:2rem">
+        <span>Activités récentes</span>
+        <div id="strava-filter-bar" class="strava-filter-bar"></div>
+      </div>
+      <div class="activity-grid" id="activity-grid"></div>
+    </div>
+
     <!-- Programmes -->
     <div class="dash-section-title" style="margin-top:2rem">
       <span>Mes programmes</span>
@@ -753,6 +974,63 @@ footer a{color:var(--green);text-decoration:none}
   </div>
 </div>
 
+<!-- ══ ADAPT WEEK MODAL ══ -->
+<div class="modal-overlay" id="adapt-modal">
+  <div class="modal" style="max-width:620px">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">✦ Adapter ma semaine</div>
+        <div class="modal-meta" id="adapt-modal-meta">Ajustement IA basé sur ta charge et tes séances</div>
+      </div>
+      <button class="modal-close" onclick="closeAdaptModal()">✕</button>
+    </div>
+    <div class="modal-body" style="max-height:72vh">
+      <!-- Step 1 : form -->
+      <div id="adapt-step-form">
+        <div class="adapt-context" id="adapt-fatigue-ctx" style="margin-bottom:1rem">
+          <div class="adapt-context-item">
+            <span class="adapt-context-lbl">Fitness CTL</span>
+            <span class="adapt-context-val" id="adapt-ctl-disp">—</span>
+          </div>
+          <div class="adapt-context-item">
+            <span class="adapt-context-lbl">Fatigue ATL</span>
+            <span class="adapt-context-val" id="adapt-atl-disp">—</span>
+          </div>
+          <div class="adapt-context-item">
+            <span class="adapt-context-lbl">Forme TSB</span>
+            <span class="adapt-context-val" id="adapt-tsb-disp">—</span>
+          </div>
+        </div>
+        <p style="font-size:.78rem;font-weight:600;color:var(--text2);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.06em">Séances prévues cette semaine</p>
+        <div class="adapt-sessions-preview" id="adapt-sessions-preview"></div>
+        <div class="form-group">
+          <label for="adapt-message">Qu'est-ce qui a changé ? <span style="color:var(--text3);font-weight:400">(optionnel)</span></label>
+          <textarea id="adapt-message" rows="3" placeholder="Ex : je me sens très fatigué, j'ai un déplacement mercredi-jeudi, petite douleur au genou gauche…" style="resize:vertical;min-height:68px"></textarea>
+        </div>
+      </div>
+      <!-- Step 2 : loading -->
+      <div id="adapt-step-loading" style="display:none;text-align:center;padding:2.5rem">
+        <div class="loading-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <p style="font-size:.82rem;color:var(--text2);margin-top:1rem">Analyse en cours…</p>
+      </div>
+      <!-- Step 3 : result -->
+      <div id="adapt-step-result" style="display:none">
+        <div class="adapt-reasoning" id="adapt-reasoning-txt"></div>
+        <p style="font-size:.78rem;font-weight:600;color:var(--text2);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.06em">Semaine adaptée</p>
+        <div class="adapt-result-sessions" id="adapt-result-sessions"></div>
+      </div>
+    </div>
+    <div class="modal-footer" style="justify-content:space-between;align-items:center">
+      <div style="font-size:.73rem;color:var(--text3)" id="adapt-footer-note"></div>
+      <div style="display:flex;gap:.5rem">
+        <button class="btn-sm" onclick="closeAdaptModal()">Annuler</button>
+        <button class="btn-next" id="adapt-generate-btn" onclick="generateWeekAdaptation()">Générer l'adaptation</button>
+        <button class="btn-primary" id="adapt-apply-btn" style="display:none;font-size:.85rem;padding:.6rem 1.25rem" onclick="applyWeekAdaptation()">✓ Appliquer ces séances</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Plan detail modal -->
 <div class="modal-overlay" id="plan-modal">
   <div class="modal">
@@ -763,7 +1041,7 @@ footer a{color:var(--green);text-decoration:none}
     <div class="modal-body"><div class="modal-content" id="modal-content"></div></div>
     <div class="modal-footer">
       <button class="btn-sm" onclick="copyModal()">Copier</button>
-      <button class="btn-sm" onclick="exportPDF()" style="background:var(--green-bg);border-color:var(--green-lt);color:var(--green);font-weight:600">⬇ PDF</button>
+      <button class="btn-pdf" onclick="exportPDF()">↓ Exporter PDF</button>
       <button class="btn-sm" onclick="showWorkoutExport()" style="background:#EAF3FA;border-color:#B5D4F4;color:#185FA5;font-weight:600">⌚ Séances montre</button>
       <button class="btn-sm" onclick="closeModal()">Fermer</button>
     </div>
@@ -871,6 +1149,31 @@ footer a{color:var(--green);text-decoration:none}
     <h2>Créer mon programme</h2>
     <p>8 étapes — plus tu es précis, plus le programme sera juste.</p>
   </div>
+  <!-- Démarrage rapide -->
+  <div class="qp-section">
+    <div class="qp-label">⚡ Démarrage rapide — choisis un profil pour pré-remplir le formulaire</div>
+    <div class="quick-profiles">
+      <button class="qp-card" id="qp-decouverte" onclick="applyQuickProfile('decouverte')">
+        <div class="qp-icon">🌿</div>
+        <div class="qp-badge">Débutant</div>
+        <div class="qp-name">Trail Découverte</div>
+        <div class="qp-desc">Premiers trails, 10–15 km · 2–4h/sem · Objectif finisher</div>
+      </button>
+      <button class="qp-card" id="qp-intermediaire" onclick="applyQuickProfile('intermediaire')">
+        <div class="qp-icon">🏔️</div>
+        <div class="qp-badge">Intermédiaire</div>
+        <div class="qp-name">Trail Montagne</div>
+        <div class="qp-desc">Trails 30–50 km · 5–8h/sem · Améliorer le chrono</div>
+      </button>
+      <button class="qp-card" id="qp-ultra" onclick="applyQuickProfile('ultra')">
+        <div class="qp-icon">⛰️</div>
+        <div class="qp-badge">Avancé</div>
+        <div class="qp-name">Ultra Trail</div>
+        <div class="qp-desc">80 km et plus · 10–15h/sem · Préparation ultra longue</div>
+      </button>
+    </div>
+  </div>
+
   <div class="step-bar" id="step-bar"></div>
 
   <!-- S1 -->
@@ -1034,7 +1337,7 @@ footer a{color:var(--green);text-decoration:none}
       <div><div class="result-title">Votre programme trail</div><div class="result-subtitle" id="result-subtitle"></div></div>
       <div class="result-actions">
         <button class="btn-sm" onclick="copyResult()">Copier</button>
-        <button class="btn-sm" onclick="exportPDF()" style="background:var(--green-bg);border-color:var(--green-lt);color:var(--green);font-weight:600">⬇ PDF</button>
+        <button class="btn-pdf" onclick="exportPDF()">↓ PDF</button>
         <button class="btn-sm" onclick="resetForm()">Nouveau</button>
       </div>
     </div>
@@ -1302,6 +1605,83 @@ function buildStepBar() {
     s.className='step-seg'+(i<currentStep?' done':i===currentStep?' active':'');
     bar.appendChild(s);
   }
+}
+
+function applyQuickProfile(id) {
+  document.querySelectorAll('.qp-card').forEach(c => c.classList.remove('active'));
+  const card = document.getElementById('qp-'+id);
+  if (card) card.classList.add('active');
+
+  const profiles = {
+    decouverte: {
+      age: 32, sex: 'homme', weight: 70, height: 175,
+      'hr-rest': 58, 'hr-max': 182, injuries: '', conditions: '',
+      level: 'débutant (moins d\'1 an de trail)', volume: 3, 'elev-weekly': 300,
+      vma: 12, paces: '', 'itra-score': '', 'utmb-index': '', races: '',
+      'race-name': 'Trail de ma région', 'race-distance-km': 12, 'race-elev': 400,
+      distance: 'XS Trail (10–15 km)', duration: '8 semaines',
+      'chrono-goal': 'Finisher', 'conditions-race': ''
+    },
+    intermediaire: {
+      age: 35, sex: 'homme', weight: 68, height: 175,
+      'hr-rest': 52, 'hr-max': 185, injuries: '', conditions: '',
+      level: 'intermédiaire (1–3 ans de trail)', volume: 6, 'elev-weekly': 800,
+      vma: 14.5, paces: 'EF 5:30/km, seuil 4:45/km', 'itra-score': 420, 'utmb-index': 300, races: '',
+      'race-name': 'Trail des Crêtes', 'race-distance-km': 42, 'race-elev': 2200,
+      distance: 'Trail moyen (30–50 km)', duration: '12 semaines',
+      'chrono-goal': 'Sub 5h', 'conditions-race': 'Terrain technique'
+    },
+    ultra: {
+      age: 38, sex: 'homme', weight: 65, height: 178,
+      'hr-rest': 46, 'hr-max': 180, injuries: '', conditions: '',
+      level: 'avancé (3–7 ans de trail)', volume: 12, 'elev-weekly': 2000,
+      vma: 16, paces: 'EF 5:10/km, seuil 4:20/km', 'itra-score': 620, 'utmb-index': 500,
+      races: 'UTMB OCC 55km — finisher (2023)',
+      'race-name': 'UTMB CCC', 'race-distance-km': 101, 'race-elev': 6100,
+      distance: 'Ultra long (80 km et plus)', duration: '16 semaines',
+      'chrono-goal': 'Sub 24h', 'conditions-race': 'Altitude 2500m, passage de nuit'
+    }
+  };
+
+  const p = profiles[id];
+  if (!p) return;
+
+  for (const [key, val] of Object.entries(p)) {
+    const el = document.getElementById(key);
+    if (!el) continue;
+    if (el.tagName === 'SELECT') {
+      const opt = [...el.options].find(o => o.value === val);
+      if (opt) el.value = val;
+    } else {
+      el.value = val;
+    }
+  }
+
+  // Goal chips
+  const goalMaps = {
+    decouverte: ['finisher'],
+    intermediaire: ['améliorer mon chrono', 'gérer le dénivelé'],
+    ultra: ['finisher', 'endurance longue distance', 'gestion nutritionnelle à l\'effort', 'préparation mentale']
+  };
+  document.querySelectorAll('#goal-chips .chip').forEach(c => {
+    c.classList.toggle('selected', (goalMaps[id] || []).includes(c.dataset.value));
+  });
+
+  // Set race date based on prep duration
+  const monthsAhead = { decouverte: 2, intermediaire: 3, ultra: 4 };
+  const raceDate = new Date();
+  raceDate.setMonth(raceDate.getMonth() + (monthsAhead[id] || 3));
+  const raceEl = document.getElementById('race-date');
+  if (raceEl) raceEl.value = raceDate.toISOString().split('T')[0];
+
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() + 7);
+  const startEl = document.getElementById('start-date');
+  if (startEl) startEl.value = startDate.toISOString().split('T')[0];
+
+  // Navigate to step 1 and scroll to form
+  goStep(1);
+  document.getElementById('step-bar')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function resetForm() {
@@ -2285,11 +2665,11 @@ async function exportPDF() {
       planMeta = '';
     }
 
-    const GREEN       = [45, 106, 79];
-    const GREEN_LIGHT = [234, 244, 239];
-    const DARK        = [28, 26, 20];
-    const GRAY        = [106, 96, 80];
-    const LIGHT_GRAY  = [245, 243, 240];
+    const GREEN       = [28, 80, 56];
+    const GREEN_LIGHT = [226, 239, 234];
+    const DARK        = [26, 24, 16];
+    const GRAY        = [92, 84, 69];
+    const LIGHT_GRAY  = [242, 238, 228];
     const W = 210; const H = 297; const ML = 18; const MR = 18; const CW = W - ML - MR;
 
     const lines = rawText.split('\n').filter(l => l.trim());
@@ -2301,7 +2681,9 @@ async function exportPDF() {
 
     // ══ PAGE 1 — COUVERTURE ══
     doc.setFillColor(...GREEN);
-    doc.rect(0, 0, W, 85, 'F');
+    doc.rect(0, 0, W, 90, 'F');
+    doc.setFillColor(175, 200, 184);
+    doc.rect(0, 88, W, 2, 'F');
 
     doc.setTextColor(255,255,255);
     doc.setFontSize(10); doc.setFont('helvetica','bold');
@@ -2347,35 +2729,46 @@ async function exportPDF() {
     const canvas = document.createElement('canvas');
     canvas.width=580; canvas.height=190;
     const ctx = canvas.getContext('2d');
-    ctx.fillStyle='#F7F5F0'; ctx.fillRect(0,0,580,190);
+    ctx.fillStyle='#F2EEE4'; ctx.fillRect(0,0,580,190);
 
-    // Parse volumes
+    // Parse volumes — try km first, then hours × 10
     const volData = [];
-    const wm = rawText.matchAll(/semaine\s+(\d+)[^\n]*\n(?:[^\n]*\n){0,10}[^\n]*volume[^:]*:?\s*[~≈]?\s*(\d+(?:[,\.]\d+)?)\s*h/gi);
-    for (const m of wm) volData.push({ w:`S${m[1]}`, h:parseFloat(m[2].replace(',','.')) });
-    if (volData.length === 0) {
-      const nm = rawText.matchAll(/~\s*(\d+(?:\.\d+)?)\s*h(?:eures?)?(?:\s*(?:\||$))/gi);
-      let idx=1;
-      for (const m of nm) { volData.push({w:`S${idx++}`, h:parseFloat(m[1])}); if(idx>12)break; }
+    const wm = rawText.matchAll(/semaine\s+(\d+)[^\n]*(?:\n[^\n]*){0,12}volume[^:]*:?\s*[~≈]?\s*(\d+(?:[,\.]\d+)?)\s*(km|h)/gi);
+    for (const m of wm) {
+      const val = parseFloat(m[2].replace(',','.'));
+      volData.push({ w:`S${m[1]}`, v: m[3].toLowerCase()==='km' ? val : val*10 });
     }
-    if (volData.length === 0) for(let i=1;i<=6;i++) volData.push({w:`S${i}`,h:7+i*0.5});
+    if (volData.length === 0) {
+      const nm = rawText.matchAll(/~\s*(\d+(?:\.\d+)?)\s*(km|h(?:eures?)?)(?:\s*(?:\||$))/gi);
+      let idx=1;
+      for (const m of nm) {
+        const isKm = /km/i.test(m[2]);
+        volData.push({w:`S${idx++}`, v: parseFloat(m[1])*(isKm?1:10)});
+        if(idx>12)break;
+      }
+    }
+    if (volData.length === 0) for(let i=1;i<=6;i++) volData.push({w:`S${i}`, v:35+i*5});
 
-    const maxH = Math.max(...volData.map(d=>d.h), 1);
+    const maxV2 = Math.max(...volData.map(d=>d.v), 1);
     const bw = (540)/volData.length;
     volData.forEach((d,i)=>{
-      const bh = (d.h/maxH)*140;
+      const bh = (d.v/maxV2)*140;
       const x = 20+i*bw;
-      ctx.fillStyle = i>=volData.length-2 ? '#C8E6D4' : '#2D6A4F';
+      const isLast = i>=volData.length-2;
+      const grad = ctx.createLinearGradient(0, 155-bh, 0, 155);
+      grad.addColorStop(0, isLast ? '#AFC8B8' : '#1C5038');
+      grad.addColorStop(1, isLast ? 'rgba(175,200,184,.4)' : 'rgba(46,114,84,.5)');
+      ctx.fillStyle = grad;
       ctx.beginPath(); ctx.roundRect(x+2,155-bh,bw-4,bh,[3,3,0,0]); ctx.fill();
-      ctx.fillStyle='#6A6050'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle='#5C5445'; ctx.font='10px sans-serif'; ctx.textAlign='center';
       ctx.fillText(d.w, x+bw/2, 172);
-      ctx.fillStyle='#2D6A4F'; ctx.font='bold 9px sans-serif';
-      ctx.fillText(`${d.h.toFixed(1)}h`, x+bw/2, 150-bh);
+      ctx.fillStyle='#1C5038'; ctx.font='bold 9px sans-serif';
+      ctx.fillText(`${Math.round(d.v)}km`, x+bw/2, 150-bh);
     });
 
     const chartImg = canvas.toDataURL('image/png');
     doc.setTextColor(...GREEN); doc.setFontSize(9); doc.setFont('helvetica','bold');
-    doc.text('Volume par semaine (heures)', ML, 146);
+    doc.text('Volume par semaine (km)', ML, 146);
     doc.addImage(chartImg,'PNG',ML,150,CW,CW*190/580);
 
     // ══ PAGE 2 — ZONES FC + PHILOSOPHIE ══
@@ -2644,6 +3037,16 @@ async function loadStravaSection() {
   }
 }
 
+async function loadStravaActivitiesSection() {
+  if (!currentUser) return;
+  const { data: tokenRow } = await supabase.from('strava_tokens').select('*').eq('user_id', currentUser.id).single();
+  if (!tokenRow) return;
+  let token;
+  try { token = await refreshStravaTokenIfNeeded(tokenRow); } catch(e) { token = tokenRow; }
+  if (!token?.access_token) return;
+  await loadStravaActivities(token.access_token);
+}
+
 async function loadStravaActivities(accessToken) {
   const activitiesDiv = document.getElementById('strava-activities');
   const grid = document.getElementById('activity-grid');
@@ -2653,57 +3056,119 @@ async function loadStravaActivities(accessToken) {
   grid.innerHTML = '<div style="grid-column:1/-1;padding:1rem 0;font-size:.82rem;color:var(--text2)">Chargement des activités…</div>';
 
   try {
-    const r = await fetch('https://www.strava.com/api/v3/athlete/activities?per_page=6', {
+    const r = await fetch('https://www.strava.com/api/v3/athlete/activities?per_page=30', {
       headers: { 'Authorization': `Bearer ${accessToken}` }
     });
     const activities = await r.json();
 
-    if (!Array.isArray(activities) || activities.length === 0) {
-      grid.innerHTML = '<div style="font-size:.82rem;color:var(--text2)">Aucune activité récente trouvée.</div>';
+    if (!Array.isArray(activities)) {
+      grid.innerHTML = '<div style="font-size:.82rem;color:var(--text2)">Impossible de charger les activités.</div>';
       return;
     }
 
-    grid.innerHTML = activities.filter(a => ['Run','TrailRun','Hike'].includes(a.type)).slice(0,6).map(a => {
-      const date = new Date(a.start_date_local).toLocaleDateString('fr-FR', {day:'numeric', month:'short'});
-      const dist = (a.distance / 1000).toFixed(1);
-      const elev = Math.round(a.total_elevation_gain);
-      const time = `${Math.floor(a.moving_time/3600)}h${String(Math.floor((a.moving_time%3600)/60)).padStart(2,'0')}`;
-      const typeLabel = a.type === 'TrailRun' ? '🏔️ Trail' : a.type === 'Hike' ? '🥾 Rando' : '🏃 Course';
-      return `<div class="activity-card">
-        <div class="activity-top">
-          <div class="activity-type">${typeLabel}</div>
-          <div class="activity-date">${date}</div>
-        </div>
-        <div class="activity-name">${a.name}</div>
-        <div class="activity-stats">
-          <div class="activity-stat"><div class="activity-stat-val">${dist}</div><div class="activity-stat-lbl">km</div></div>
-          <div class="activity-stat"><div class="activity-stat-val">${time}</div><div class="activity-stat-lbl">durée</div></div>
-          <div class="activity-stat"><div class="activity-stat-val">${elev}</div><div class="activity-stat-lbl">D+</div></div>
-        </div>
-      </div>`;
-    }).join('');
+    window._allStravaActivities = activities.filter(a => ['Run','TrailRun','Hike'].includes(a.type));
 
-    if (grid.innerHTML === '') {
-      grid.innerHTML = '<div style="font-size:.82rem;color:var(--text2)">Aucune activité trail/course récente.</div>';
+    // Build filter bar
+    const filterBar = document.getElementById('strava-filter-bar');
+    if (filterBar) {
+      filterBar.innerHTML = `
+        <div class="strava-filter-group" id="strava-type-filters">
+          <button class="strava-filter-btn active" data-type="all" onclick="setStravaTypeFilter(this)">Tout</button>
+          <button class="strava-filter-btn" data-type="TrailRun" onclick="setStravaTypeFilter(this)">Trail</button>
+          <button class="strava-filter-btn" data-type="Run" onclick="setStravaTypeFilter(this)">Course</button>
+          <button class="strava-filter-btn" data-type="Hike" onclick="setStravaTypeFilter(this)">Rando</button>
+        </div>
+        <div class="strava-filter-group" id="strava-period-filters">
+          <button class="strava-filter-btn active" data-period="0" onclick="setStravaPeriodFilter(this)">Tout</button>
+          <button class="strava-filter-btn" data-period="7" onclick="setStravaPeriodFilter(this)">7j</button>
+          <button class="strava-filter-btn" data-period="30" onclick="setStravaPeriodFilter(this)">30j</button>
+          <button class="strava-filter-btn" data-period="90" onclick="setStravaPeriodFilter(this)">3 mois</button>
+        </div>`;
     }
+
+    renderStravaActivities(window._allStravaActivities);
   } catch(e) {
     grid.innerHTML = `<div style="font-size:.8rem;color:var(--orange)">Impossible de charger les activités.</div>`;
   }
+}
+
+function setStravaTypeFilter(btn) {
+  document.querySelectorAll('#strava-type-filters .strava-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterStravaActivities();
+}
+
+function setStravaPeriodFilter(btn) {
+  document.querySelectorAll('#strava-period-filters .strava-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterStravaActivities();
+}
+
+function filterStravaActivities() {
+  const activeType = document.querySelector('#strava-type-filters .strava-filter-btn.active')?.dataset.type || 'all';
+  const activePeriod = parseInt(document.querySelector('#strava-period-filters .strava-filter-btn.active')?.dataset.period || '0');
+
+  let filtered = window._allStravaActivities || [];
+  if (activeType !== 'all') filtered = filtered.filter(a => a.type === activeType);
+  if (activePeriod > 0) {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - activePeriod);
+    filtered = filtered.filter(a => new Date(a.start_date_local) >= cutoff);
+  }
+  renderStravaActivities(filtered);
+}
+
+function renderStravaActivities(activities) {
+  const grid = document.getElementById('activity-grid');
+  if (!grid) return;
+
+  if (!activities || activities.length === 0) {
+    grid.innerHTML = '<div style="font-size:.82rem;color:var(--text2)">Aucune activité pour ces filtres.</div>';
+    return;
+  }
+
+  grid.innerHTML = activities.slice(0, 20).map(a => {
+    const date = new Date(a.start_date_local).toLocaleDateString('fr-FR', {day:'numeric', month:'short'});
+    const dist = (a.distance / 1000).toFixed(1);
+    const elev = Math.round(a.total_elevation_gain);
+    const time = `${Math.floor(a.moving_time/3600)}h${String(Math.floor((a.moving_time%3600)/60)).padStart(2,'0')}`;
+    const typeLabel = a.type === 'TrailRun' ? '🏔️ Trail' : a.type === 'Hike' ? '🥾 Rando' : '🏃 Course';
+    return `<div class="activity-card">
+      <div class="activity-top">
+        <div class="activity-type">${typeLabel}</div>
+        <div class="activity-date">${date}</div>
+      </div>
+      <div class="activity-name">${a.name}</div>
+      <div class="activity-stats">
+        <div class="activity-stat"><div class="activity-stat-val">${dist}</div><div class="activity-stat-lbl">km</div></div>
+        <div class="activity-stat"><div class="activity-stat-val">${time}</div><div class="activity-stat-lbl">durée</div></div>
+        <div class="activity-stat"><div class="activity-stat-val">${elev}</div><div class="activity-stat-lbl">D+</div></div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 async function disconnectStrava() {
   if (!confirm('Déconnecter Strava ?')) return;
   await supabase.from('strava_tokens').delete().eq('user_id', currentUser.id);
   await loadStravaSection();
-  document.getElementById('strava-activities').style.display = 'none';
+  const el = document.getElementById('strava-activities');
+  if (el) el.style.display = 'none';
+  window._allStravaActivities = [];
 }
 
 // Init immédiate (navigation + step bar) — pas besoin du SDK
 buildStepBar();
 document.getElementById('nav-home').classList.add('active');
 document.getElementById('plan-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+document.getElementById('adapt-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeAdaptModal();});
 const obs = new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');}),{threshold:.1});
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// Nav scroll state
+window.addEventListener('scroll', () => {
+  document.querySelector('nav').classList.toggle('scrolled', window.scrollY > 20);
+}, {passive: true});
 
 // Lance l'auth
 initAuth();
@@ -2764,23 +3229,115 @@ async function initAuth() {
 
 function renderNav(user) {
   const area = document.getElementById('nav-auth-area');
+  const mobileUserArea = document.getElementById('nav-mobile-user-area');
+  const mobileAuthActions = document.getElementById('nav-mobile-auth-actions');
+
   if (user) {
-    const name = user.user_metadata?.name || user.email?.split('@')[0] || 'Mon espace';
+    const fullName = user.user_metadata?.name || user.email?.split('@')[0] || 'Mon espace';
+    // Initiales (max 2 lettres)
+    const initials = fullName.split(' ').slice(0,2).map(w => w[0]?.toUpperCase()).join('');
+    // Prénom seul pour la version courte
+    const firstName = fullName.split(' ')[0];
+
+    // ── Desktop chip ───────────────────────────────────────────────
     area.innerHTML = `
-      <div style="display:flex;align-items:center;gap:.5rem">
-        <button class="btn-secondary" style="padding:.38rem .9rem;font-size:.82rem" onclick="showPage('dashboard')">
-          Mon espace
-        </button>
-        <button class="btn-ghost" style="padding:.38rem .9rem;font-size:.82rem;color:var(--text2)" onclick="doLogout()">
-          Déconnexion
-        </button>
-      </div>`;
+      <button class="nav-user-chip" onclick="showPage('dashboard')" aria-label="Mon espace">
+        <div class="nav-user-avatar">${initials}</div>
+        <span class="nav-user-name">Mon espace</span>
+        <svg class="nav-user-chevron" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 3.5l3 3-3 3"/>
+        </svg>
+      </button>
+      <button class="nav-signout-btn" onclick="doLogout()" title="Déconnexion" aria-label="Déconnexion">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 2H3a1 1 0 00-1 1v8a1 1 0 001 1h2M9.5 9.5L12 7m0 0L9.5 4.5M12 7H5"/>
+        </svg>
+      </button>`;
+
+    // ── Mobile panel — user header + actions ───────────────────────
+    if (mobileUserArea) mobileUserArea.innerHTML = `
+      <div class="nav-mobile-user">
+        <div class="nav-mobile-user-avatar">${initials}</div>
+        <div class="nav-mobile-user-info">
+          <div class="nav-mobile-user-name">${fullName}</div>
+          <div class="nav-mobile-user-label">Compte connecté</div>
+        </div>
+      </div>
+      <div class="nav-mobile-sep"></div>`;
+
+    if (mobileAuthActions) mobileAuthActions.innerHTML = `
+      <div class="nav-mobile-sep"></div>
+      <button class="nav-mobile-link" onclick="mobileNav('dashboard')" style="font-weight:600;color:var(--green)">
+        Mon espace →
+      </button>
+      <button class="nav-mobile-link" onclick="doLogout();closeMobileMenu()" style="color:var(--text3)">
+        Déconnexion
+      </button>`;
   } else {
+    // ── Desktop CTA ────────────────────────────────────────────────
     area.innerHTML = `
-      <button class="btn-primary" style="padding:.38rem 1rem;font-size:.82rem" onclick="showPage('login')">
+      <button class="nav-cta" onclick="showPage('login')">
         Se connecter
+        <svg class="nav-cta-arrow" width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2.5 6.5h8M7 3.5l3 3-3 3"/>
+        </svg>
+      </button>`;
+
+    // ── Mobile panel — CTA ─────────────────────────────────────────
+    if (mobileUserArea) mobileUserArea.innerHTML = '';
+    if (mobileAuthActions) mobileAuthActions.innerHTML = `
+      <div class="nav-mobile-sep"></div>
+      <button class="nav-mobile-cta" onclick="showPage('login');closeMobileMenu()">
+        Se connecter →
       </button>`;
   }
+}
+
+/**
+ * Toggle the mobile navigation panel open/closed.
+ */
+function toggleMobileMenu() {
+  const hamburger = document.getElementById('nav-hamburger');
+  const panel = document.getElementById('nav-mobile-panel');
+  const backdrop = document.getElementById('nav-mobile-backdrop');
+  const isOpen = panel.classList.contains('open');
+  if (isOpen) {
+    closeMobileMenu();
+  } else {
+    hamburger.classList.add('open');
+    hamburger.setAttribute('aria-expanded', 'true');
+    panel.classList.add('open');
+    panel.removeAttribute('aria-hidden');  // expose to accessibility tree when visible
+    backdrop.classList.add('open');
+    // Sync active state in mobile links
+    ['home','generator','about'].forEach(id => {
+      const btn = document.getElementById(`nav-mob-${id}`);
+      if (btn) btn.classList.toggle('active', document.getElementById(`nav-${id}`)?.classList.contains('active'));
+    });
+  }
+}
+
+/**
+ * Close the mobile navigation panel and hide it from the accessibility tree.
+ */
+function closeMobileMenu() {
+  const hamburger = document.getElementById('nav-hamburger');
+  const panel = document.getElementById('nav-mobile-panel');
+  const backdrop = document.getElementById('nav-mobile-backdrop');
+  hamburger?.classList.remove('open');
+  hamburger?.setAttribute('aria-expanded', 'false');
+  panel?.classList.remove('open');
+  panel?.setAttribute('aria-hidden', 'true');  // hide from accessibility tree when closed
+  backdrop?.classList.remove('open');
+}
+
+/**
+ * Navigate from the mobile menu (close panel then show page).
+ * @param {string} page
+ */
+function mobileNav(page) {
+  closeMobileMenu();
+  showPage(page);
 }
 
 async function doLogin() {
@@ -2916,6 +3473,9 @@ async function loadDashboard() {
   await ensureValidToken();
   await loadActivePlan();
   await Promise.all([loadStravaSection(), showWeek(), loadPlans()]);
+  // Non-blocking: charge d'entraînement + activités Strava
+  loadFatigueMetrics().catch(() => {});
+  loadStravaActivitiesSection().catch(() => {});
 }
 
 // Helper : headers avec le token de session utilisateur (requis pour RLS)
@@ -3008,7 +3568,164 @@ async function navigateWeek(dir) {
   await showWeek();
 }
 
-async function loadDashboardAnalytics() { await showWeek(); }
+async function loadDashboardAnalytics() {
+  await showWeek();
+  loadFatigueMetrics().catch(() => {});
+}
+
+// ─────────────────────────────────────────────
+//  FATIGUE / CHARGE D'ENTRAÎNEMENT
+// ─────────────────────────────────────────────
+
+// Retourne le load d'une activité Strava (km × facteur dénivelé)
+function activityLoad(a) {
+  return (a.distance / 1000) * (1 + a.total_elevation_gain / 1000);
+}
+
+// Calcule CTL / ATL / TSB + série journalière sur les 42 derniers jours
+function computeFatigueMetrics(activities) {
+  const today = new Date(); today.setHours(23, 59, 59, 999);
+
+  // Map date ISO → load cumulé
+  const loadMap = {};
+  for (const a of activities) {
+    const ds = (a.start_date_local || '').split('T')[0];
+    if (!ds) continue;
+    loadMap[ds] = (loadMap[ds] || 0) + activityLoad(a);
+  }
+
+  // Série de 42 jours (EMA)
+  let ctl = 0, atl = 0;
+  const series = [];
+  for (let d = 41; d >= 0; d--) {
+    const date = new Date(today);
+    date.setDate(today.getDate() - d);
+    const ds = date.toISOString().split('T')[0];
+    const load = loadMap[ds] || 0;
+    // k = 1/period (simple EMA convergente vers la moyenne glissante)
+    atl = atl + (load - atl) / 7;
+    ctl = ctl + (load - ctl) / 42;
+    series.push({ ds, load, atl: +atl.toFixed(2), ctl: +ctl.toFixed(2), tsb: +(ctl - atl).toFixed(2) });
+  }
+  const last = series[series.length - 1];
+  return { ctl: last.ctl, atl: last.atl, tsb: last.tsb, series };
+}
+
+function renderFatigueKPIs(ctl, atl, tsb) {
+  document.getElementById('kpi-ctl-val').textContent = ctl.toFixed(1);
+  document.getElementById('kpi-atl-val').textContent = atl.toFixed(1);
+
+  const tsbEl = document.getElementById('kpi-tsb-val');
+  const tsbSub = document.getElementById('kpi-tsb-sub');
+  const tsbCard = document.getElementById('kpi-tsb-card');
+  tsbEl.textContent = (tsb >= 0 ? '+' : '') + tsb.toFixed(1);
+
+  tsbEl.className = 'kpi-val ' + (tsb > 5 ? 'positive' : tsb < -10 ? 'negative' : 'neutral');
+  tsbCard.className = 'kpi-card ' + (tsb > 5 ? 'fresh' : tsb < -10 ? 'tired' : '');
+  tsbSub.textContent = tsb > 5 ? '🟢 Frais — prêt à performer'
+                     : tsb < -10 ? '🔴 Fatigué — récupération conseillée'
+                     : '🟡 Forme normale d\'entraînement';
+}
+
+function renderFatigueChart(series) {
+  const container = document.getElementById('fatigue-chart');
+  const dpr = window.devicePixelRatio || 1;
+  const W = container.clientWidth || 560;
+  const H = 140;
+  const canvas = document.createElement('canvas');
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  container.innerHTML = '';
+  container.appendChild(canvas);
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const PAD = { t: 14, b: 28, l: 34, r: 10 };
+  const cW = W - PAD.l - PAD.r;
+  const cH = H - PAD.t - PAD.b;
+  const n = series.length;
+
+  const allVals = series.flatMap(s => [s.ctl, s.atl]);
+  const yMax = Math.max(...allVals, 1) * 1.25;
+  const xOf = i => PAD.l + (i / (n - 1)) * cW;
+  const yOf = v => PAD.t + cH - (v / yMax) * cH;
+
+  // Grille
+  ctx.setLineDash([3, 4]); ctx.lineWidth = 0.5;
+  ctx.fillStyle = '#998B77'; ctx.font = `9px 'Plus Jakarta Sans',sans-serif`; ctx.textAlign = 'right';
+  for (let g = 0; g <= 3; g++) {
+    const v = yMax * g / 3, y = yOf(v);
+    ctx.strokeStyle = '#DDD7C4';
+    ctx.beginPath(); ctx.moveTo(PAD.l, y); ctx.lineTo(W - PAD.r, y); ctx.stroke();
+    if (g > 0) ctx.fillText(v.toFixed(0), PAD.l - 3, y + 3);
+  }
+  ctx.setLineDash([]);
+
+  // Remplissage TSB (zone entre CTL et ATL)
+  ctx.beginPath();
+  series.forEach((s, i) => i === 0 ? ctx.moveTo(xOf(i), yOf(s.ctl)) : ctx.lineTo(xOf(i), yOf(s.ctl)));
+  series.slice().reverse().forEach((s, i) => ctx.lineTo(xOf(n - 1 - i), yOf(s.atl)));
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(28,80,56,.07)';
+  ctx.fill();
+
+  // CTL line
+  ctx.beginPath(); ctx.strokeStyle = '#1C5038'; ctx.lineWidth = 2;
+  series.forEach((s, i) => i === 0 ? ctx.moveTo(xOf(i), yOf(s.ctl)) : ctx.lineTo(xOf(i), yOf(s.ctl)));
+  ctx.stroke();
+
+  // ATL line (dashed orange)
+  ctx.beginPath(); ctx.setLineDash([4, 3]); ctx.strokeStyle = '#B84215'; ctx.lineWidth = 1.8;
+  series.forEach((s, i) => i === 0 ? ctx.moveTo(xOf(i), yOf(s.atl)) : ctx.lineTo(xOf(i), yOf(s.atl)));
+  ctx.stroke(); ctx.setLineDash([]);
+
+  // X labels (every ~week)
+  ctx.textAlign = 'center'; ctx.fillStyle = '#998B77'; ctx.font = `9px 'Plus Jakarta Sans',sans-serif`;
+  series.forEach((s, i) => {
+    if (i % 7 === 0 || i === n - 1) {
+      const d = new Date(s.ds);
+      ctx.fillText(d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }), xOf(i), H - 6);
+    }
+  });
+}
+
+async function loadFatigueMetrics() {
+  if (!currentUser) return;
+
+  // Récupère le token Strava
+  let tokenRow = null;
+  try {
+    tokenRow = await supabase.from('strava_tokens').select('*').eq('user_id', currentUser.id).single().then(r => r.data).catch(() => null);
+  } catch(e) {}
+  if (!tokenRow) return;
+
+  let token = null;
+  try { token = await refreshStravaTokenIfNeeded(tokenRow); } catch(e) { token = tokenRow; }
+  if (!token?.access_token) return;
+
+  // Fetch 42 jours d'activités
+  const since = new Date(); since.setDate(since.getDate() - 43);
+  let acts = [];
+  try {
+    const r = await fetch(
+      `https://www.strava.com/api/v3/athlete/activities?after=${Math.floor(since/1000)}&per_page=100`,
+      { headers: { Authorization: `Bearer ${token.access_token}` } }
+    );
+    const j = await r.json();
+    if (Array.isArray(j)) acts = j;
+  } catch(e) { return; }
+
+  if (acts.length === 0) return;
+
+  const { ctl, atl, tsb, series } = computeFatigueMetrics(acts);
+  window._fatigueMetrics = { ctl, atl, tsb };
+
+  // Affiche le bloc
+  document.getElementById('fatigue-block').style.display = '';
+  renderFatigueKPIs(ctl, atl, tsb);
+  renderFatigueChart(series);
+}
 
 async function showWeek() {
   const myOff   = _weekOffset;
@@ -3519,6 +4236,319 @@ function renderWeekComparison(monday, planned, activities, today, analysis) {
   container.innerHTML = html;
 }
 
+// ─────────────────────────────────────────────
+//  ADAPTATION SEMAINE IA
+// ─────────────────────────────────────────────
+let _adaptPendingSessions = null; // sessions parsées depuis la réponse Claude
+
+function closeAdaptModal() {
+  document.getElementById('adapt-modal').classList.remove('open');
+  _adaptPendingSessions = null;
+}
+
+function openAdaptModal() {
+  const monday = getMondayForOffset(_weekOffset);
+  const sj = window._activePlanSessionsJson;
+  if (!sj && !window._activePlanContent) {
+    alert('Aucun programme actif trouvé. Génère ou active un programme d\'abord.');
+    return;
+  }
+
+  // Reset modal to step 1
+  document.getElementById('adapt-step-form').style.display = '';
+  document.getElementById('adapt-step-loading').style.display = 'none';
+  document.getElementById('adapt-step-result').style.display = 'none';
+  document.getElementById('adapt-generate-btn').style.display = '';
+  document.getElementById('adapt-apply-btn').style.display = 'none';
+  document.getElementById('adapt-message').value = '';
+  document.getElementById('adapt-footer-note').textContent = '';
+
+  // Fill fatigue context
+  const fm = window._fatigueMetrics;
+  const disp = fm ? {
+    ctl: fm.ctl.toFixed(1), atl: fm.atl.toFixed(1),
+    tsb: (fm.tsb >= 0 ? '+' : '') + fm.tsb.toFixed(1)
+  } : { ctl: '—', atl: '—', tsb: '—' };
+  document.getElementById('adapt-ctl-disp').textContent = disp.ctl;
+  document.getElementById('adapt-atl-disp').textContent = disp.atl;
+  document.getElementById('adapt-tsb-disp').textContent = disp.tsb;
+
+  // Fill planned sessions preview
+  const planned = sj ? extractWeekFromSessionsJson(sj, monday) : (window._activePlanContent ? parsePlanForWeek(window._activePlanContent, monday) : {});
+  const dayNames = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+  const shortNames = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  const preview = document.getElementById('adapt-sessions-preview');
+  preview.innerHTML = dayNames.map((name, i) => {
+    const p = planned[i];
+    const isRest = !p || !p.type || p.type.match(/^repos$|^—$|^-$/i);
+    return `<div class="adapt-session-row">
+      <span class="adapt-day-lbl">${shortNames[i]}</span>
+      <span>${isRest
+        ? '<span style="color:var(--text3);font-size:.75rem">Repos</span>'
+        : `<strong style="font-size:.8rem">${p.type}</strong>${p.duration ? ` <span style="color:var(--text3);font-size:.72rem">· ${p.duration}</span>` : ''}${p.detail ? `<div style="color:var(--text3);font-size:.72rem;margin-top:1px">${p.detail.substring(0,70)}${p.detail.length>70?'…':''}</div>` : ''}`
+      }</span>
+    </div>`;
+  }).join('');
+
+  // Store planned for prompt
+  window._adaptPlanned = planned;
+  document.getElementById('adapt-modal').classList.add('open');
+}
+
+async function generateWeekAdaptation() {
+  const monday = getMondayForOffset(_weekOffset);
+  const planned = window._adaptPlanned || {};
+  const message = document.getElementById('adapt-message').value.trim();
+  const fm = window._fatigueMetrics;
+  const dayNames = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  // Show loading
+  document.getElementById('adapt-step-form').style.display = 'none';
+  document.getElementById('adapt-step-loading').style.display = '';
+  document.getElementById('adapt-generate-btn').style.display = 'none';
+
+  // Build sessions summary
+  const sessionsSummary = dayNames.map((name, i) => {
+    const p = planned[i];
+    const isRest = !p || !p.type || p.type.match(/^repos$|^—$|^-$/i);
+    const dayDate = new Date(monday); dayDate.setDate(monday.getDate() + i);
+    const isPast = dayDate < today;
+    const marker = isPast ? ' [DÉJÀ PASSÉ]' : '';
+    return isRest ? `${name}${marker}: Repos` : `${name}${marker}: ${p.type}${p.duration ? ' — ' + p.duration : ''}${p.detail ? ' — ' + p.detail.substring(0,80) : ''}`;
+  }).join('\n');
+
+  const tsbInterpretation = fm
+    ? (fm.tsb > 5 ? 'frais et en forme, prêt à charger' : fm.tsb < -10 ? 'très fatigué, besoin de récupération' : 'état normal d\'entraînement')
+    : 'inconnu (pas de données Strava)';
+
+  const fatigueContext = fm
+    ? `- Fitness CTL : ${fm.ctl.toFixed(1)} pts (capacité aérobie sur 42j)\n- Fatigue ATL : ${fm.atl.toFixed(1)} pts (charge des 7 derniers jours)\n- Forme TSB : ${(fm.tsb >= 0 ? '+' : '')}${fm.tsb.toFixed(1)} pts → athlète ${tsbInterpretation}`
+    : '(données Strava non disponibles)';
+
+  const prompt = `SÉANCES PRÉVUES CETTE SEMAINE (${monday.toLocaleDateString('fr-FR', {day:'numeric',month:'long'})}) :
+${sessionsSummary}
+
+CHARGE D'ENTRAÎNEMENT :
+${fatigueContext}
+
+MESSAGE DE L'ATHLÈTE :
+"${message || 'Aucun message particulier.'}"
+
+Adapte les séances des jours NON PASSÉS en tenant compte de la charge actuelle et du message de l'athlète. Conserve les jours marqués [DÉJÀ PASSÉ] tels quels.
+Réponds UNIQUEMENT en JSON valide (sans texte autour) :
+{
+  "reasoning": "Explication courte de tes choix (2-3 phrases).",
+  "sessions": [
+    {"day_index": 0, "type": "Endurance fondamentale", "duration": "1h15", "detail": "Z2, terrain varié"},
+    {"day_index": 1, "type": "Repos", "duration": "", "detail": ""}
+  ]
+}
+Inclus les 7 jours (0=Lundi … 6=Dimanche). Pour repos: type "Repos".`;
+
+  let result = null;
+  try {
+    const r = await fetch(EDGE_FUNCTION_URL, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({
+        system: 'Tu es un coach trail expert. Réponds uniquement en JSON valide, sans texte autour.',
+        prompt
+      })
+    });
+    const j = await r.json();
+    const raw = j?.data?.content?.[0]?.text || j?.content?.[0]?.text || '';
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (jsonMatch) result = JSON.parse(jsonMatch[0]);
+  } catch(e) {
+    console.error('[Adapt] Error:', e);
+  }
+
+  document.getElementById('adapt-step-loading').style.display = 'none';
+
+  if (!result?.sessions) {
+    document.getElementById('adapt-step-form').style.display = '';
+    document.getElementById('adapt-generate-btn').style.display = '';
+    document.getElementById('adapt-footer-note').textContent = '⚠ Erreur lors de la génération, réessaie.';
+    return;
+  }
+
+  _adaptPendingSessions = result.sessions;
+
+  // Show result
+  document.getElementById('adapt-reasoning-txt').textContent = result.reasoning || '';
+  const shortNames = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  const resultContainer = document.getElementById('adapt-result-sessions');
+  resultContainer.innerHTML = dayNames.map((name, i) => {
+    const adapted = result.sessions.find(s => s.day_index === i);
+    const origPlanned = planned[i];
+    const isRest = !adapted || adapted.type.match(/^repos$|^—$|^-$/i);
+    const origIsRest = !origPlanned || !origPlanned.type || origPlanned.type.match(/^repos$|^—$|^-$/i);
+    const changed = adapted && (adapted.type !== (origPlanned?.type || 'Repos'));
+    return `<div class="adapt-result-row${isRest ? ' rest' : changed ? ' changed' : ''}">
+      <span class="adapt-day-lbl">${shortNames[i]}</span>
+      <span>${isRest
+        ? '<span style="color:var(--text3);font-size:.75rem">Repos</span>'
+        : `<strong style="font-size:.8rem">${adapted.type}</strong>${adapted.duration ? ` <span style="color:var(--text2);font-size:.72rem">· ${adapted.duration}</span>` : ''}${adapted.detail ? `<div style="color:var(--text3);font-size:.72rem;margin-top:1px">${adapted.detail}</div>` : ''}`
+      }${changed ? ' <span style="font-size:.65rem;background:var(--green);color:#fff;border-radius:4px;padding:.1rem .35rem;vertical-align:middle">modifié</span>' : ''}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('adapt-step-result').style.display = '';
+  document.getElementById('adapt-apply-btn').style.display = '';
+  document.getElementById('adapt-footer-note').textContent = 'Les séances passées ne seront pas modifiées.';
+}
+
+async function applyWeekAdaptation() {
+  if (!_adaptPendingSessions) return;
+  const monday = getMondayForOffset(_weekOffset);
+  const mondayYear = monday.getFullYear();
+  const sj = window._activePlanSessionsJson;
+  const pid = window._activePlanId;
+  if (!sj || !pid) { closeAdaptModal(); return; }
+
+  const newSj = JSON.parse(JSON.stringify(sj));
+
+  // Find target week
+  let targetWeek = null;
+  for (const week of newSj) {
+    const sd = week.start_day || week.startDay;
+    const sm = week.start_month || week.startMonth;
+    if (!sd || !sm) continue;
+    for (const yr of [mondayYear, mondayYear-1, mondayYear+1]) {
+      const ws = new Date(yr, sm-1, sd);
+      if (Math.round((monday - ws) / 86400000) >= 0 && Math.round((monday - ws) / 86400000) <= 6) {
+        targetWeek = week; break;
+      }
+    }
+    if (targetWeek) break;
+  }
+  if (!targetWeek) { closeAdaptModal(); return; }
+
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  // Apply only future/today sessions
+  for (const adapted of _adaptPendingSessions) {
+    const dayDate = new Date(monday); dayDate.setDate(monday.getDate() + adapted.day_index);
+    if (dayDate < today) continue; // skip past days
+
+    const existing = (targetWeek.days || []).find(d => (d.day_index ?? d.dayIndex) === adapted.day_index);
+    if (existing) {
+      existing.type = adapted.type;
+      existing.duration = adapted.duration || '';
+      existing.detail = adapted.detail || '';
+    } else {
+      if (!targetWeek.days) targetWeek.days = [];
+      targetWeek.days.push({ day_index: adapted.day_index, type: adapted.type, duration: adapted.duration || '', detail: adapted.detail || '' });
+    }
+  }
+
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/plans?id=eq.${pid}`, {
+      method: 'PATCH',
+      headers: { ...authHeaders(), 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ sessions_json: newSj })
+    });
+    window._activePlanSessionsJson = newSj;
+  } catch(e) { console.error('[Adapt] save failed', e); }
+
+  closeAdaptModal();
+  await showWeek();
+}
+
+// ── SESSION SWAP ──
+let _swapFirstIdx = null;
+
+function toggleSwapMode() {
+  const btn = document.getElementById('swap-mode-btn');
+  if (btn.classList.contains('active')) { cancelSwapMode(); return; }
+  _swapFirstIdx = null;
+  btn.classList.add('active');
+  document.getElementById('swap-mode-bar').classList.add('active');
+  document.getElementById('week-comparison').classList.add('swap-mode');
+  document.getElementById('week-comparison').addEventListener('click', handleSwapClick);
+}
+
+function cancelSwapMode() {
+  _swapFirstIdx = null;
+  document.getElementById('swap-mode-btn')?.classList.remove('active');
+  document.getElementById('swap-mode-bar')?.classList.remove('active');
+  const cmp = document.getElementById('week-comparison');
+  cmp?.classList.remove('swap-mode');
+  cmp?.querySelectorAll('.week-row').forEach(r => r.classList.remove('swap-selected'));
+  cmp?.removeEventListener('click', handleSwapClick);
+  const hint = document.querySelector('.swap-mode-hint');
+  if (hint) hint.innerHTML = `Sélectionne <strong>2 jours</strong> pour inverser leurs séances`;
+}
+
+function handleSwapClick(e) {
+  const row = e.target.closest('.week-row[data-day]');
+  if (!row) return;
+  const dayIdx = parseInt(row.dataset.day);
+  const names = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  const hint = document.querySelector('.swap-mode-hint');
+  if (_swapFirstIdx === null) {
+    _swapFirstIdx = dayIdx;
+    row.classList.add('swap-selected');
+    if (hint) hint.innerHTML = `<strong>${names[dayIdx]}</strong> sélectionné — clique sur le <strong>2ème jour</strong>`;
+  } else if (dayIdx === _swapFirstIdx) {
+    row.classList.remove('swap-selected');
+    _swapFirstIdx = null;
+    if (hint) hint.innerHTML = `Sélectionne <strong>2 jours</strong> pour inverser leurs séances`;
+  } else {
+    doSwapSessions(_swapFirstIdx, dayIdx);
+  }
+}
+
+async function doSwapSessions(i, j) {
+  const sj = window._activePlanSessionsJson;
+  const pid = window._activePlanId;
+  if (!sj || !pid) { cancelSwapMode(); return; }
+
+  const monday = getMondayForOffset(_weekOffset);
+  const mondayYear = monday.getFullYear();
+  const newSj = JSON.parse(JSON.stringify(sj));
+
+  let targetWeek = null;
+  for (const week of newSj) {
+    const sd = week.start_day || week.startDay;
+    const sm = week.start_month || week.startMonth;
+    if (!sd || !sm) continue;
+    for (const yr of [mondayYear, mondayYear-1, mondayYear+1]) {
+      const ws = new Date(yr, sm-1, sd);
+      if (Math.round((monday - ws) / 86400000) >= 0 && Math.round((monday - ws) / 86400000) <= 6) {
+        targetWeek = week; break;
+      }
+    }
+    if (targetWeek) break;
+  }
+  if (!targetWeek) { cancelSwapMode(); return; }
+
+  const days = targetWeek.days || [];
+  const dayI = days.find(d => (d.day_index ?? d.dayIndex) === i);
+  const dayJ = days.find(d => (d.day_index ?? d.dayIndex) === j);
+  const rest = { type: 'Repos', duration: '', detail: '' };
+  const copyI = dayI ? { type: dayI.type, duration: dayI.duration||'', detail: dayI.detail||'' } : {...rest};
+  const copyJ = dayJ ? { type: dayJ.type, duration: dayJ.duration||'', detail: dayJ.detail||'' } : {...rest};
+
+  if (dayI) { dayI.type = copyJ.type; dayI.duration = copyJ.duration; dayI.detail = copyJ.detail; }
+  else { targetWeek.days.push({ day_index: i, ...copyJ }); }
+  if (dayJ) { dayJ.type = copyI.type; dayJ.duration = copyI.duration; dayJ.detail = copyI.detail; }
+  else { targetWeek.days.push({ day_index: j, ...copyI }); }
+
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/plans?id=eq.${pid}`, {
+      method: 'PATCH',
+      headers: { ...authHeaders(), 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ sessions_json: newSj })
+    });
+    window._activePlanSessionsJson = newSj;
+  } catch(e) { console.error('[Swap] save failed', e); }
+
+  cancelSwapMode();
+  await showWeek();
+}
+
 function renderKPIs(planned, activities, token, cachedScore) {
   const totalKm = activities.reduce((s,a) => s + a.distance/1000, 0);
   const totalElev = activities.reduce((s,a) => s + a.total_elevation_gain, 0);
@@ -3623,18 +4653,17 @@ async function renderVolumeChart(accessToken, planContent) {
 
   const data = weeks.map(w => {
     const wa = allActs.filter(a => {const d=new Date(a.start_date_local); return d>=w.start&&d<=w.end;});
-    const done = wa.reduce((s,a)=>s+a.moving_time/3600,0);
+    const done = wa.reduce((s,a)=>s+a.distance/1000,0);  // km
     const elev = wa.reduce((s,a)=>s+a.total_elevation_gain,0);
-    const planned = planContent ? estimatePlannedHours(planContent, w.start) : 0;
+    const planned = planContent ? estimatePlannedKm(planContent, w.start) : 0;
     const label = w.start.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
     return {done, planned, elev, label, isCurrent:w.isCurrent};
   });
 
-  // Canvas — prend toute la largeur du conteneur
   const canvas = document.createElement('canvas');
   const dpr = window.devicePixelRatio || 1;
   const W = container.clientWidth || 600;
-  const H = 160;
+  const H = 190;
   canvas.width = W * dpr;
   canvas.height = H * dpr;
   canvas.style.width = W + 'px';
@@ -3645,89 +4674,94 @@ async function renderVolumeChart(accessToken, planContent) {
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
 
-  const PAD = {t:18, b:32, l:36, r:12};
+  const PAD = {t:20, b:36, l:44, r:14};
   const cW = W - PAD.l - PAD.r;
   const cH = H - PAD.t - PAD.b;
 
-  const maxV = Math.max(...data.map(d=>Math.max(d.done,d.planned)), 0.5);
-  const yMax = Math.ceil(maxV + 0.5);
-  const xOf = i => PAD.l + (i/(WEEKS-1))*cW;
-  const yOf = v => PAD.t + cH - (v/yMax)*cH;
+  const maxV = Math.max(...data.map(d=>Math.max(d.done,d.planned)), 5);
+  const rawMax = maxV * 1.2;
+  const step = rawMax <= 20 ? 5 : rawMax <= 60 ? 10 : rawMax <= 120 ? 20 : 25;
+  const yMax = Math.ceil(rawMax / step) * step;
 
-  // Grille
-  ctx.strokeStyle = '#E8E4DC'; ctx.lineWidth = 0.5;
-  ctx.setLineDash([3,3]);
-  ctx.fillStyle = '#9A8F7E'; ctx.font = `${10*dpr/dpr}px sans-serif`; ctx.textAlign = 'right';
-  for (let g=0; g<=4; g++) {
-    const v = yMax*g/4, y = yOf(v);
-    ctx.beginPath(); ctx.moveTo(PAD.l, y); ctx.lineTo(W-PAD.r, y); ctx.stroke();
-    ctx.fillText(v.toFixed(1)+'h', PAD.l-4, y+4);
+  const slotW = cW / WEEKS;
+  const barW = Math.max(6, slotW * 0.42);
+  const xOf = i => PAD.l + (i + 0.5) * slotW;
+  const yOf = v => PAD.t + cH - (v / yMax) * cH;
+
+  // Grid lines
+  ctx.lineWidth = 0.5; ctx.setLineDash([3,4]);
+  ctx.fillStyle = '#998B77'; ctx.font = `10px 'Plus Jakarta Sans',sans-serif`; ctx.textAlign = 'right';
+  for (let g = 0; g <= 4; g++) {
+    const v = yMax * g / 4, y = yOf(v);
+    ctx.strokeStyle = g === 0 ? '#C8C0B0' : '#DDD7C4';
+    ctx.beginPath(); ctx.moveTo(PAD.l, y); ctx.lineTo(W - PAD.r, y); ctx.stroke();
+    ctx.fillText(Math.round(v) + 'km', PAD.l - 5, y + 4);
   }
   ctx.setLineDash([]);
 
-  // Labels X
-  ctx.textAlign = 'center'; ctx.font = '10px sans-serif';
-  data.forEach((d,i) => {
-    if (i%2!==0 && !d.isCurrent) return;
-    ctx.fillStyle = d.isCurrent ? '#2D6A4F' : '#9A8F7E';
-    ctx.font = d.isCurrent ? 'bold 10px sans-serif' : '10px sans-serif';
-    ctx.fillText(d.label, xOf(i), H-6);
+  // X labels
+  ctx.textAlign = 'center';
+  data.forEach((d, i) => {
+    if (i % 2 !== 0 && !d.isCurrent) return;
+    ctx.fillStyle = d.isCurrent ? '#1C5038' : '#998B77';
+    ctx.font = d.isCurrent ? `bold 10px 'Plus Jakarta Sans',sans-serif` : `10px 'Plus Jakarta Sans',sans-serif`;
+    ctx.fillText(d.label, xOf(i), H - 9);
   });
 
-  // Courbe prévu (pointillée)
-  const planPts = data.filter(d=>d.planned>0);
-  if (planPts.length > 1) {
-    ctx.beginPath(); ctx.setLineDash([4,3]); ctx.strokeStyle='#95C4A1'; ctx.lineWidth=1.5;
-    planPts.forEach((d,i) => {
+  // Bars — done
+  data.forEach((d, i) => {
+    if (d.done <= 0) return;
+    const bH = (d.done / yMax) * cH;
+    const x = xOf(i) - barW / 2, y = PAD.t + cH - bH;
+    const grad = ctx.createLinearGradient(0, y, 0, y + bH);
+    if (d.isCurrent) {
+      grad.addColorStop(0, '#1C5038'); grad.addColorStop(1, 'rgba(46,114,84,.55)');
+    } else {
+      grad.addColorStop(0, '#2E7254'); grad.addColorStop(1, 'rgba(175,200,184,.5)');
+    }
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    if (ctx.roundRect) { ctx.roundRect(x, y, barW, bH, [3, 3, 0, 0]); }
+    else { ctx.rect(x, y, barW, bH); }
+    ctx.fill();
+  });
+
+  // Planned line (dashed)
+  const planPts = data.filter(d => d.planned > 0);
+  if (planPts.length > 0) {
+    ctx.beginPath(); ctx.setLineDash([5, 4]); ctx.strokeStyle = '#AFC8B8'; ctx.lineWidth = 1.8;
+    planPts.forEach((d, i) => {
       const idx = data.indexOf(d);
-      i===0 ? ctx.moveTo(xOf(idx), yOf(d.planned)) : ctx.lineTo(xOf(idx), yOf(d.planned));
+      i === 0 ? ctx.moveTo(xOf(idx), yOf(d.planned)) : ctx.lineTo(xOf(idx), yOf(d.planned));
     });
     ctx.stroke(); ctx.setLineDash([]);
     planPts.forEach(d => {
-      const idx=data.indexOf(d);
-      ctx.strokeStyle='#95C4A1'; ctx.lineWidth=1.5;
-      ctx.strokeRect(xOf(idx)-3, yOf(d.planned)-3, 6, 6);
+      const idx = data.indexOf(d);
+      ctx.beginPath(); ctx.arc(xOf(idx), yOf(d.planned), 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#AFC8B8'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5;
+      ctx.fill(); ctx.stroke();
     });
   }
 
-  // Courbe réalisé (pleine)
-  const donePts = data.filter(d=>d.done>0);
-  if (donePts.length > 1) {
-    ctx.beginPath(); ctx.strokeStyle='#40916C'; ctx.lineWidth=2;
-    donePts.forEach((d,i) => {
-      const idx=data.indexOf(d);
-      i===0 ? ctx.moveTo(xOf(idx),yOf(d.done)) : ctx.lineTo(xOf(idx),yOf(d.done));
-    });
-    ctx.stroke();
-  }
-  donePts.forEach(d => {
-    const idx=data.indexOf(d);
-    ctx.beginPath(); ctx.arc(xOf(idx),yOf(d.done),4,0,Math.PI*2);
-    ctx.fillStyle = d.isCurrent?'#2D6A4F':'#40916C';
-    ctx.strokeStyle='white'; ctx.lineWidth=1.5;
-    ctx.fill(); ctx.stroke();
-  });
-
-  // Légende
+  // Legend
   const legendEl = document.getElementById('chart-legend');
   if (legendEl) legendEl.innerHTML = `
     <span style="display:flex;align-items:center;gap:5px">
-      <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="#40916C" stroke-width="2"/><circle cx="10" cy="5" r="3" fill="#40916C" stroke="white" stroke-width="1"/></svg>
-      Réalisé (h)
+      <span style="display:inline-block;width:10px;height:12px;background:linear-gradient(#1C5038,rgba(46,114,84,.5));border-radius:2px 2px 1px 1px;flex-shrink:0"></span>
+      Réalisé (km)
     </span>
     <span style="display:flex;align-items:center;gap:5px">
-      <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="#95C4A1" stroke-width="1.5" stroke-dasharray="3,2"/><rect x="7" y="2" width="6" height="6" fill="none" stroke="#95C4A1" stroke-width="1.5"/></svg>
-      Prévu (h)
+      <svg width="22" height="10" style="flex-shrink:0"><line x1="1" y1="5" x2="21" y2="5" stroke="#AFC8B8" stroke-width="1.8" stroke-dasharray="4,3"/><circle cx="11" cy="5" r="3" fill="#AFC8B8" stroke="white" stroke-width="1.2"/></svg>
+      Prévu (km)
     </span>`;
 }
 
 
-function estimatePlannedHours(content, weekStart) {
+function estimatePlannedKm(content, weekStart) {
   if (!content) return 0;
   const day = weekStart.getDate();
   const lines = content.split('\n');
   let inWeek = false;
-  // Cherche la semaine correspondante
   for (const line of lines) {
     if (line.match(/semaine\s+\d+/i)) {
       const auMatch = line.match(/(\d{1,2})\s+au\s+(\d{1,2})/i);
@@ -3740,9 +4774,15 @@ function estimatePlannedHours(content, weekStart) {
       }
     }
     if (inWeek) {
-      // Cherche "Volume cible: ~Xh" dans la ligne
+      // Try explicit km
+      const mkm = line.match(/volume[^:]*:?\s*~?\s*(\d+(?:[,\.]\d+)?)\s*km/i);
+      if (mkm) return parseFloat(mkm[1].replace(',', '.'));
+      // Try range like "X-Y km"
+      const mrange = line.match(/(\d+)\s*[-–]\s*(\d+)\s*km/i);
+      if (mrange) return (parseInt(mrange[1]) + parseInt(mrange[2])) / 2;
+      // Fallback: hours × 10 km/h (average trail pace estimate)
       const mh = line.match(/volume[^:]*:?\s*~?\s*(\d+(?:[,\.]\d+)?)\s*h/i);
-      if (mh) return parseFloat(mh[1].replace(',','.'));
+      if (mh) return parseFloat(mh[1].replace(',', '.')) * 10;
     }
   }
   return 0;
