@@ -26,9 +26,9 @@ const { ASYNC_TIMEOUT } = require('./helpers/constants');
 test.describe('Mobile — generator quick profiles', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    // Use the ID locator — the text "Générateur" also appears in a FAQ button,
-    // which would cause a strict-mode violation with getByRole.
-    await page.locator('#nav-generator').click();
+    // On mobile (390 px) the .nav-center is hidden — use the JS API to
+    // navigate directly, the same approach used for the mobile dashboard tests.
+    await page.evaluate(() => window.showPage('generator'));
     await expect(page.locator('#page-generator')).toBeVisible();
   });
 
