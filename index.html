@@ -329,8 +329,33 @@ input[type="range"]{flex:1;accent-color:var(--green);height:4px;background:var(-
 .ap-sub{font-size:.7rem;color:var(--text2);font-weight:300}
 
 /* ── FOOTER ── */
-footer{border-top:1px solid var(--border);padding:1.35rem 2rem;text-align:center;color:var(--text3);font-size:.76rem;background:var(--white)}
-footer a{color:var(--green);text-decoration:none}
+footer{border-top:1px solid var(--border);padding:1.5rem 2rem;background:var(--white)}
+footer .footer-main{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.75rem}
+footer .footer-links{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem .85rem;font-size:.76rem;color:var(--text3)}
+footer .footer-links a{color:var(--text3);text-decoration:none;cursor:pointer;transition:color .15s}
+footer .footer-links a:hover{color:var(--green)}
+footer .footer-links span{color:var(--border2)}
+.footer-strava{display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--text3)}
+.footer-strava-logo{width:18px;height:18px;flex-shrink:0}
+/* ── STRAVA ATTRIBUTION ── */
+.strava-powered{display:flex;align-items:center;gap:5px;font-size:.68rem;color:var(--text3);margin-top:.85rem;padding-top:.65rem;border-top:1px solid var(--border)}
+.strava-powered a{color:#FC4C02;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:4px}
+.strava-powered a:hover{opacity:.8}
+/* ── PRIVACY PAGE ── */
+.privacy-wrap{max-width:760px;margin:0 auto;padding:3.5rem 2rem 5rem}
+.privacy-wrap h1{font-family:'Fraunces',serif;font-size:1.85rem;font-weight:600;letter-spacing:-.02em;margin-bottom:.4rem}
+.privacy-wrap .privacy-date{font-size:.78rem;color:var(--text3);margin-bottom:2.5rem;display:block}
+.privacy-section{margin-bottom:2.25rem;padding-bottom:2.25rem;border-bottom:1px solid var(--border)}
+.privacy-section:last-child{border-bottom:none}
+.privacy-section h2{font-family:'Fraunces',serif;font-size:1.05rem;font-weight:600;margin-bottom:.65rem;color:var(--text)}
+.privacy-section p,.privacy-section li{font-size:.875rem;color:var(--text2);line-height:1.82;font-weight:300}
+.privacy-section ul{padding-left:1.25rem;margin:.5rem 0}
+.privacy-section li{margin-bottom:.3rem}
+.privacy-highlight{background:var(--green-bg);border:1px solid var(--green-lt);border-radius:var(--radius);padding:1rem 1.25rem;margin:.85rem 0}
+.privacy-highlight p{color:var(--green);font-size:.82rem;font-weight:500;margin:0}
+.privacy-en{background:var(--bg2);border-left:3px solid var(--border2);border-radius:0 var(--radius) var(--radius) 0;padding:.85rem 1.1rem;margin:.85rem 0;font-style:italic}
+.privacy-en p{font-size:.8rem;color:var(--text2)}
+.privacy-en .lang-label{font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:.4rem;display:block}
 
 .reveal{opacity:0;transform:translateY(13px);transition:opacity .5s,transform .5s}
 .reveal.in{opacity:1;transform:none}
@@ -616,6 +641,7 @@ footer a{color:var(--green);text-decoration:none}
   <button class="nav-mobile-link" onclick="mobileNav('home')" id="nav-mob-home">Accueil</button>
   <button class="nav-mobile-link" onclick="mobileNav('generator')" id="nav-mob-generator">Générateur</button>
   <button class="nav-mobile-link" onclick="mobileNav('about')" id="nav-mob-about">À propos</button>
+  <button class="nav-mobile-link" onclick="mobileNav('privacy')" id="nav-mob-privacy" style="font-size:.82rem;color:var(--text3)">Confidentialité</button>
   <div id="nav-mobile-auth-actions"><!-- filled by renderNav --></div>
 </div>
 
@@ -767,7 +793,23 @@ footer a{color:var(--green);text-decoration:none}
     </div>
   </section>
 
-  <footer><p>En Trailment · Propulsé par Claude · Anthropic · <a href="https://anthropic.com">anthropic.com</a></p></footer>
+  <footer>
+    <div class="footer-main">
+      <div class="footer-links">
+        <span>© 2025 En Trailment</span>
+        <span>·</span>
+        <a onclick="showPage('about')">À propos</a>
+        <span>·</span>
+        <a onclick="showPage('privacy')">Confidentialité</a>
+        <span>·</span>
+        <a href="https://anthropic.com" target="_blank" rel="noopener">Propulsé par Claude</a>
+      </div>
+      <div class="footer-strava">
+        <svg class="footer-strava-logo" viewBox="0 0 24 24" fill="#FC4C02" aria-hidden="true"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
+        <a href="https://www.strava.com" target="_blank" rel="noopener noreferrer" style="color:#FC4C02;text-decoration:none;font-weight:600">Powered by Strava</a>
+      </div>
+    </div>
+  </footer>
 </div>
 
 <!-- ══ LOGIN ══ -->
@@ -959,6 +1001,14 @@ footer a{color:var(--green);text-decoration:none}
         <div id="strava-filter-bar" class="strava-filter-bar"></div>
       </div>
       <div class="activity-grid" id="activity-grid"></div>
+      <!-- Attribution obligatoire Strava API Agreement -->
+      <div class="strava-powered">
+        Données fournies par
+        <a href="https://www.strava.com" target="_blank" rel="noopener noreferrer">
+          <svg class="footer-strava-logo" viewBox="0 0 24 24" fill="#FC4C02" aria-label="Strava"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
+          Strava
+        </a>
+      </div>
     </div>
 
     <!-- Programmes -->
@@ -1415,7 +1465,23 @@ footer a{color:var(--green);text-decoration:none}
       <p style="font-size:.82rem;color:var(--text2);font-weight:300;line-height:1.7">Strava OAuth · Garmin Connect API · Wahoo SYSTM · Polar Flow · Suunto — le coach compare automatiquement chaque séance programmée (distance, zones FC, D+) avec la séance réellement réalisée, et adapte les semaines suivantes en conséquence.</p>
     </div>
   </div>
-  <footer><p>En Trailment · Propulsé par Claude · Anthropic · <a href="https://anthropic.com">anthropic.com</a></p></footer>
+  <footer>
+    <div class="footer-main">
+      <div class="footer-links">
+        <span>© 2025 En Trailment</span>
+        <span>·</span>
+        <a onclick="showPage('about')">À propos</a>
+        <span>·</span>
+        <a onclick="showPage('privacy')">Confidentialité</a>
+        <span>·</span>
+        <a href="https://anthropic.com" target="_blank" rel="noopener">Propulsé par Claude</a>
+      </div>
+      <div class="footer-strava">
+        <svg class="footer-strava-logo" viewBox="0 0 24 24" fill="#FC4C02" aria-hidden="true"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
+        <a href="https://www.strava.com" target="_blank" rel="noopener noreferrer" style="color:#FC4C02;text-decoration:none;font-weight:600">Powered by Strava</a>
+      </div>
+    </div>
+  </footer>
 </div>
 
 <!-- ══ ABOUT ══ -->
@@ -1439,7 +1505,139 @@ footer a{color:var(--green);text-decoration:none}
       <p>Application web utilisant l'API Claude d'Anthropic pour la génération et Supabase pour l'authentification et le stockage des programmes. Architecture serverless — aucune infrastructure à maintenir.</p>
     </div>
   </div>
-  <footer><p>En Trailment · Propulsé par Claude · Anthropic · <a href="https://anthropic.com">anthropic.com</a></p></footer>
+  <footer>
+    <div class="footer-main">
+      <div class="footer-links">
+        <span>© 2025 En Trailment</span>
+        <span>·</span>
+        <a onclick="showPage('about')">À propos</a>
+        <span>·</span>
+        <a onclick="showPage('privacy')">Confidentialité</a>
+        <span>·</span>
+        <a href="https://anthropic.com" target="_blank" rel="noopener">Propulsé par Claude</a>
+      </div>
+      <div class="footer-strava">
+        <svg class="footer-strava-logo" viewBox="0 0 24 24" fill="#FC4C02" aria-hidden="true"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
+        <a href="https://www.strava.com" target="_blank" rel="noopener noreferrer" style="color:#FC4C02;text-decoration:none;font-weight:600">Powered by Strava</a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- ══ PRIVACY POLICY ══ -->
+<div class="page" id="page-privacy">
+  <div class="privacy-wrap">
+
+    <div class="section-eyebrow">Légal</div>
+    <h1>Politique de confidentialité</h1>
+    <span class="privacy-date">Dernière mise à jour : avril 2025</span>
+
+    <div class="privacy-section">
+      <h2>1. Qui sommes-nous ?</h2>
+      <p>En Trailment est une application web de coaching trail propulsée par l'IA Claude (Anthropic). Elle est éditée et exploitée à titre personnel. Pour toute question relative à tes données personnelles, tu peux nous contacter à l'adresse : <strong>contact@entrailment.app</strong>.</p>
+    </div>
+
+    <div class="privacy-section">
+      <h2>2. Données collectées</h2>
+      <p>En Trailment collecte uniquement les données strictement nécessaires à son fonctionnement :</p>
+      <ul>
+        <li><strong>Adresse e-mail et mot de passe</strong> — pour la création de compte et l'authentification (stockés via Supabase, chiffrés au repos).</li>
+        <li><strong>Données de profil sportif</strong> — niveau, volume hebdomadaire, zones cardiaques, objectifs de course — saisies volontairement dans le formulaire de génération. Utilisées uniquement pour générer ton programme d'entraînement.</li>
+        <li><strong>Programme d'entraînement généré</strong> — stocké dans notre base de données Supabase pour que tu puisses le retrouver à tout moment.</li>
+        <li><strong>Jeton de session</strong> — stocké dans le <code>localStorage</code> de ton navigateur pour maintenir ta connexion. Jamais envoyé à un tiers.</li>
+      </ul>
+    </div>
+
+    <div class="privacy-section">
+      <h2>3. Intégration Strava</h2>
+      <div class="privacy-highlight">
+        <p>La connexion Strava est facultative. Sans elle, toutes les fonctionnalités de génération de programme restent disponibles.</p>
+      </div>
+      <p>Lorsque tu connectes ton compte Strava, nous accédons aux données suivantes via l'API officielle Strava :</p>
+      <ul>
+        <li><strong>Profil public Strava</strong> (prénom, nom, identifiant athlète) — affiché dans ton tableau de bord pour confirmer la connexion.</li>
+        <li><strong>Activités récentes</strong> (courses, trail runs, randonnées) — affichées dans la section « Activités récentes » de ton tableau de bord. Filtrables par type et par période.</li>
+      </ul>
+      <p><strong>Ce que nous ne faisons pas avec tes données Strava :</strong></p>
+      <ul>
+        <li>Tes activités ne sont <strong>jamais stockées</strong> dans notre base de données. Elles sont récupérées en direct depuis Strava à chaque visite.</li>
+        <li>Tes données Strava ne sont <strong>jamais partagées, vendues ou utilisées à des fins publicitaires</strong>.</li>
+        <li>Nous ne créons, modifions ni supprimons aucune activité sur ton compte Strava.</li>
+      </ul>
+      <p>Ton jeton d'accès Strava est stocké de façon sécurisée dans notre base de données (chiffré au repos par Supabase / PostgreSQL, accessible uniquement par ton compte via Row Level Security). Tu peux déconnecter Strava à tout moment depuis ton tableau de bord — ce qui supprime immédiatement ton jeton de notre système.</p>
+
+      <!-- English version for Strava API reviewers -->
+      <div class="privacy-en">
+        <span class="lang-label">English — for Strava API review</span>
+        <p>En Trailment integrates with Strava via the official Strava API. When you connect your Strava account, we access your athlete profile (name, athlete ID) and your recent activities (runs, trail runs, hikes) to display them on your personal dashboard. Activity data is fetched on demand directly from Strava each time you visit your dashboard and is <strong>never stored on our servers</strong>. Your Strava access token is stored securely (encrypted at rest) and used solely to retrieve your data on your behalf. It is never shared with third parties. You can disconnect Strava at any time from your dashboard settings, which immediately deletes your token from our systems. This application is not endorsed by or affiliated with Strava. "Strava" and the Strava logo are trademarks of Strava Inc.</p>
+      </div>
+    </div>
+
+    <div class="privacy-section">
+      <h2>4. Comment tes données sont-elles protégées ?</h2>
+      <ul>
+        <li><strong>Supabase</strong> — base de données PostgreSQL hébergée sur AWS (région Europe), chiffrée au repos et en transit (TLS). Row Level Security activé : chaque utilisateur n'accède qu'à ses propres données.</li>
+        <li><strong>Anthropic / Claude</strong> — tes données de profil sportif sont transmises à l'API Claude pour générer ton programme. Anthropic s'engage à ne pas utiliser les données d'API pour entraîner ses modèles (voir <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener">politique Anthropic</a>).</li>
+        <li><strong>localStorage</strong> — la session de connexion est stockée localement dans ton navigateur. Elle expire automatiquement et n'est jamais partagée.</li>
+      </ul>
+    </div>
+
+    <div class="privacy-section">
+      <h2>5. Durée de conservation</h2>
+      <ul>
+        <li>Ton compte et tes programmes : conservés tant que ton compte est actif.</li>
+        <li>Jeton Strava : supprimé immédiatement sur déconnexion Strava ou suppression de compte.</li>
+        <li>Données de session (localStorage) : expiration automatique après 1 heure (renouvellement automatique à l'usage).</li>
+      </ul>
+    </div>
+
+    <div class="privacy-section">
+      <h2>6. Tes droits (RGPD)</h2>
+      <p>Conformément au Règlement général sur la protection des données (RGPD), tu disposes des droits suivants :</p>
+      <ul>
+        <li><strong>Droit d'accès</strong> — obtenir une copie de tes données personnelles.</li>
+        <li><strong>Droit de rectification</strong> — corriger des informations inexactes.</li>
+        <li><strong>Droit à l'effacement</strong> — demander la suppression de ton compte et de toutes tes données.</li>
+        <li><strong>Droit à la portabilité</strong> — recevoir tes données dans un format structuré.</li>
+        <li><strong>Droit d'opposition</strong> — t'opposer à tout traitement.</li>
+      </ul>
+      <p>Pour exercer ces droits, contacte-nous à <strong>contact@entrailment.app</strong>. Nous nous engageons à répondre dans un délai de 30 jours.</p>
+    </div>
+
+    <div class="privacy-section">
+      <h2>7. Cookies et stockage local</h2>
+      <p>En Trailment n'utilise <strong>aucun cookie de traçage ou publicitaire</strong>. Le seul stockage utilisé est le <code>localStorage</code> de ton navigateur pour maintenir ta session d'authentification. Aucune donnée n'est partagée avec des régies publicitaires.</p>
+    </div>
+
+    <div class="privacy-section">
+      <h2>8. Modifications de cette politique</h2>
+      <p>En cas de modification substantielle, la date de mise à jour en haut de cette page sera actualisée. Pour des changements importants, une notification sera affichée dans l'application.</p>
+    </div>
+
+    <div class="privacy-section">
+      <h2>9. Contact</h2>
+      <p>Pour toute question sur cette politique ou sur le traitement de tes données personnelles :<br>
+      <strong>contact@entrailment.app</strong></p>
+    </div>
+
+  </div>
+  <footer>
+    <div class="footer-main">
+      <div class="footer-links">
+        <span>© 2025 En Trailment</span>
+        <span>·</span>
+        <a onclick="showPage('about')">À propos</a>
+        <span>·</span>
+        <a onclick="showPage('privacy')">Confidentialité</a>
+        <span>·</span>
+        <a href="https://anthropic.com" target="_blank" rel="noopener">Propulsé par Claude</a>
+      </div>
+      <div class="footer-strava">
+        <svg class="footer-strava-logo" viewBox="0 0 24 24" fill="#FC4C02" aria-hidden="true"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
+        <a href="https://www.strava.com" target="_blank" rel="noopener noreferrer" style="color:#FC4C02;text-decoration:none;font-weight:600">Powered by Strava</a>
+      </div>
+    </div>
+  </footer>
 </div>
 
 <!-- ══ jsPDF ══ -->
