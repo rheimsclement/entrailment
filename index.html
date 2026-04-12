@@ -3101,6 +3101,7 @@ async function disconnectStrava() {
 buildStepBar();
 document.getElementById('nav-home').classList.add('active');
 document.getElementById('plan-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+document.getElementById('adapt-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeAdaptModal();});
 const obs = new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');}),{threshold:.1});
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 

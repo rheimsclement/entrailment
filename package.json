@@ -1,0 +1,14 @@
+{
+  "name": "entrailment-tests",
+  "private": true,
+  "description": "End-to-end tests for the En Trailment SPA",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1"
+  }
+}
