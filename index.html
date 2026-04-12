@@ -493,6 +493,41 @@ footer a{color:var(--green);text-decoration:none}
 .adapt-result-row.changed{background:var(--green-bg);border:1px solid var(--green-lt)}
 .adapt-result-row.rest{background:var(--bg2);opacity:.7}
 
+/* ── QUICK START PROFILES (point 5) ── */
+.qp-section{margin-bottom:1.75rem}
+.qp-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:.65rem;display:flex;align-items:center;gap:6px}
+.quick-profiles{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem}
+.qp-card{background:var(--white);border:2px solid var(--border);border-radius:var(--radius-lg);padding:1.1rem 1.2rem;cursor:pointer;transition:all .18s;box-shadow:var(--shadow);text-align:left;width:100%}
+.qp-card:hover{border-color:var(--green-lt);box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.qp-card.active{border-color:var(--green);background:var(--green-bg)}
+.qp-icon{font-size:1.4rem;margin-bottom:.4rem}
+.qp-name{font-family:'Fraunces',serif;font-size:.95rem;font-weight:600;color:var(--text);margin-bottom:.2rem}
+.qp-desc{font-size:.7rem;color:var(--text3);line-height:1.5}
+.qp-badge{display:inline-block;background:var(--bg2);border-radius:100px;font-size:.62rem;font-weight:700;padding:.1rem .55rem;color:var(--text2);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.04em}
+@media(max-width:600px){.quick-profiles{grid-template-columns:1fr}}
+
+/* ── STRAVA ACTIVITY FILTERS (point 7) ── */
+.strava-filter-bar{display:flex;gap:.5rem;flex-wrap:wrap}
+.strava-filter-group{display:flex;gap:.3rem;flex-wrap:wrap}
+.strava-filter-btn{background:var(--white);border:1px solid var(--border);border-radius:7px;padding:.22rem .65rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.72rem;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s}
+.strava-filter-btn:hover{border-color:var(--green-lt)}
+.strava-filter-btn.active{background:var(--green);border-color:var(--green);color:#fff}
+
+/* ── MOBILE (point 6) ── */
+@media(max-width:640px){
+  .modal-overlay{padding:0;align-items:flex-end}
+  .modal{border-radius:var(--radius-lg) var(--radius-lg) 0 0;max-width:100%!important;width:100%;margin:0}
+  .modal-body{max-height:65svh!important}
+  .week-grid-header,.week-row{grid-template-columns:72px 1fr 1fr;font-size:.73rem;padding:.65rem .85rem}
+  .plan-session{grid-template-columns:40px 1fr;gap:.35rem}
+  .ps-day{font-size:.62rem}
+  .dash-wrap{padding:1.25rem 1rem 5rem}
+  .gen-wrap{padding:1.75rem 1rem 5rem}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .dash-section-title{flex-wrap:wrap;gap:.5rem}
+  .quick-profiles{grid-template-columns:1fr}
+}
+
 /* ── VIDEO HERO ── */
 .hero{position:relative;overflow:hidden}
 .hero-video-wrap{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
@@ -857,6 +892,15 @@ footer a{color:var(--green);text-decoration:none}
       </div>
     </div>
 
+    <!-- Activités Strava -->
+    <div id="strava-activities" style="display:none">
+      <div class="dash-section-title" style="margin-top:2rem">
+        <span>Activités récentes</span>
+        <div id="strava-filter-bar" class="strava-filter-bar"></div>
+      </div>
+      <div class="activity-grid" id="activity-grid"></div>
+    </div>
+
     <!-- Programmes -->
     <div class="dash-section-title" style="margin-top:2rem">
       <span>Mes programmes</span>
@@ -1045,6 +1089,31 @@ footer a{color:var(--green);text-decoration:none}
     <h2>Créer mon programme</h2>
     <p>8 étapes — plus tu es précis, plus le programme sera juste.</p>
   </div>
+  <!-- Démarrage rapide -->
+  <div class="qp-section">
+    <div class="qp-label">⚡ Démarrage rapide — choisis un profil pour pré-remplir le formulaire</div>
+    <div class="quick-profiles">
+      <button class="qp-card" id="qp-decouverte" onclick="applyQuickProfile('decouverte')">
+        <div class="qp-icon">🌿</div>
+        <div class="qp-badge">Débutant</div>
+        <div class="qp-name">Trail Découverte</div>
+        <div class="qp-desc">Premiers trails, 10–15 km · 2–4h/sem · Objectif finisher</div>
+      </button>
+      <button class="qp-card" id="qp-intermediaire" onclick="applyQuickProfile('intermediaire')">
+        <div class="qp-icon">🏔️</div>
+        <div class="qp-badge">Intermédiaire</div>
+        <div class="qp-name">Trail Montagne</div>
+        <div class="qp-desc">Trails 30–50 km · 5–8h/sem · Améliorer le chrono</div>
+      </button>
+      <button class="qp-card" id="qp-ultra" onclick="applyQuickProfile('ultra')">
+        <div class="qp-icon">⛰️</div>
+        <div class="qp-badge">Avancé</div>
+        <div class="qp-name">Ultra Trail</div>
+        <div class="qp-desc">80 km et plus · 10–15h/sem · Préparation ultra longue</div>
+      </button>
+    </div>
+  </div>
+
   <div class="step-bar" id="step-bar"></div>
 
   <!-- S1 -->
@@ -1476,6 +1545,83 @@ function buildStepBar() {
     s.className='step-seg'+(i<currentStep?' done':i===currentStep?' active':'');
     bar.appendChild(s);
   }
+}
+
+function applyQuickProfile(id) {
+  document.querySelectorAll('.qp-card').forEach(c => c.classList.remove('active'));
+  const card = document.getElementById('qp-'+id);
+  if (card) card.classList.add('active');
+
+  const profiles = {
+    decouverte: {
+      age: 32, sex: 'homme', weight: 70, height: 175,
+      'hr-rest': 58, 'hr-max': 182, injuries: '', conditions: '',
+      level: 'débutant (moins d\'1 an de trail)', volume: 3, 'elev-weekly': 300,
+      vma: 12, paces: '', 'itra-score': '', 'utmb-index': '', races: '',
+      'race-name': 'Trail de ma région', 'race-distance-km': 12, 'race-elev': 400,
+      distance: 'XS Trail (10–15 km)', duration: '8 semaines',
+      'chrono-goal': 'Finisher', 'conditions-race': ''
+    },
+    intermediaire: {
+      age: 35, sex: 'homme', weight: 68, height: 175,
+      'hr-rest': 52, 'hr-max': 185, injuries: '', conditions: '',
+      level: 'intermédiaire (1–3 ans de trail)', volume: 6, 'elev-weekly': 800,
+      vma: 14.5, paces: 'EF 5:30/km, seuil 4:45/km', 'itra-score': 420, 'utmb-index': 300, races: '',
+      'race-name': 'Trail des Crêtes', 'race-distance-km': 42, 'race-elev': 2200,
+      distance: 'Trail moyen (30–50 km)', duration: '12 semaines',
+      'chrono-goal': 'Sub 5h', 'conditions-race': 'Terrain technique'
+    },
+    ultra: {
+      age: 38, sex: 'homme', weight: 65, height: 178,
+      'hr-rest': 46, 'hr-max': 180, injuries: '', conditions: '',
+      level: 'avancé (3–7 ans de trail)', volume: 12, 'elev-weekly': 2000,
+      vma: 16, paces: 'EF 5:10/km, seuil 4:20/km', 'itra-score': 620, 'utmb-index': 500,
+      races: 'UTMB OCC 55km — finisher (2023)',
+      'race-name': 'UTMB CCC', 'race-distance-km': 101, 'race-elev': 6100,
+      distance: 'Ultra long (80 km et plus)', duration: '16 semaines',
+      'chrono-goal': 'Sub 24h', 'conditions-race': 'Altitude 2500m, passage de nuit'
+    }
+  };
+
+  const p = profiles[id];
+  if (!p) return;
+
+  for (const [key, val] of Object.entries(p)) {
+    const el = document.getElementById(key);
+    if (!el) continue;
+    if (el.tagName === 'SELECT') {
+      const opt = [...el.options].find(o => o.value === val);
+      if (opt) el.value = val;
+    } else {
+      el.value = val;
+    }
+  }
+
+  // Goal chips
+  const goalMaps = {
+    decouverte: ['finisher'],
+    intermediaire: ['améliorer mon chrono', 'gérer le dénivelé'],
+    ultra: ['finisher', 'endurance longue distance', 'gestion nutritionnelle à l\'effort', 'préparation mentale']
+  };
+  document.querySelectorAll('#goal-chips .chip').forEach(c => {
+    c.classList.toggle('selected', (goalMaps[id] || []).includes(c.dataset.value));
+  });
+
+  // Set race date based on prep duration
+  const monthsAhead = { decouverte: 2, intermediaire: 3, ultra: 4 };
+  const raceDate = new Date();
+  raceDate.setMonth(raceDate.getMonth() + (monthsAhead[id] || 3));
+  const raceEl = document.getElementById('race-date');
+  if (raceEl) raceEl.value = raceDate.toISOString().split('T')[0];
+
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() + 7);
+  const startEl = document.getElementById('start-date');
+  if (startEl) startEl.value = startDate.toISOString().split('T')[0];
+
+  // Navigate to step 1 and scroll to form
+  goStep(1);
+  document.getElementById('step-bar')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function resetForm() {
@@ -2831,6 +2977,16 @@ async function loadStravaSection() {
   }
 }
 
+async function loadStravaActivitiesSection() {
+  if (!currentUser) return;
+  const { data: tokenRow } = await supabase.from('strava_tokens').select('*').eq('user_id', currentUser.id).single();
+  if (!tokenRow) return;
+  let token;
+  try { token = await refreshStravaTokenIfNeeded(tokenRow); } catch(e) { token = tokenRow; }
+  if (!token?.access_token) return;
+  await loadStravaActivities(token.access_token);
+}
+
 async function loadStravaActivities(accessToken) {
   const activitiesDiv = document.getElementById('strava-activities');
   const grid = document.getElementById('activity-grid');
@@ -2840,49 +2996,105 @@ async function loadStravaActivities(accessToken) {
   grid.innerHTML = '<div style="grid-column:1/-1;padding:1rem 0;font-size:.82rem;color:var(--text2)">Chargement des activités…</div>';
 
   try {
-    const r = await fetch('https://www.strava.com/api/v3/athlete/activities?per_page=6', {
+    const r = await fetch('https://www.strava.com/api/v3/athlete/activities?per_page=30', {
       headers: { 'Authorization': `Bearer ${accessToken}` }
     });
     const activities = await r.json();
 
-    if (!Array.isArray(activities) || activities.length === 0) {
-      grid.innerHTML = '<div style="font-size:.82rem;color:var(--text2)">Aucune activité récente trouvée.</div>';
+    if (!Array.isArray(activities)) {
+      grid.innerHTML = '<div style="font-size:.82rem;color:var(--text2)">Impossible de charger les activités.</div>';
       return;
     }
 
-    grid.innerHTML = activities.filter(a => ['Run','TrailRun','Hike'].includes(a.type)).slice(0,6).map(a => {
-      const date = new Date(a.start_date_local).toLocaleDateString('fr-FR', {day:'numeric', month:'short'});
-      const dist = (a.distance / 1000).toFixed(1);
-      const elev = Math.round(a.total_elevation_gain);
-      const time = `${Math.floor(a.moving_time/3600)}h${String(Math.floor((a.moving_time%3600)/60)).padStart(2,'0')}`;
-      const typeLabel = a.type === 'TrailRun' ? '🏔️ Trail' : a.type === 'Hike' ? '🥾 Rando' : '🏃 Course';
-      return `<div class="activity-card">
-        <div class="activity-top">
-          <div class="activity-type">${typeLabel}</div>
-          <div class="activity-date">${date}</div>
-        </div>
-        <div class="activity-name">${a.name}</div>
-        <div class="activity-stats">
-          <div class="activity-stat"><div class="activity-stat-val">${dist}</div><div class="activity-stat-lbl">km</div></div>
-          <div class="activity-stat"><div class="activity-stat-val">${time}</div><div class="activity-stat-lbl">durée</div></div>
-          <div class="activity-stat"><div class="activity-stat-val">${elev}</div><div class="activity-stat-lbl">D+</div></div>
-        </div>
-      </div>`;
-    }).join('');
+    window._allStravaActivities = activities.filter(a => ['Run','TrailRun','Hike'].includes(a.type));
 
-    if (grid.innerHTML === '') {
-      grid.innerHTML = '<div style="font-size:.82rem;color:var(--text2)">Aucune activité trail/course récente.</div>';
+    // Build filter bar
+    const filterBar = document.getElementById('strava-filter-bar');
+    if (filterBar) {
+      filterBar.innerHTML = `
+        <div class="strava-filter-group" id="strava-type-filters">
+          <button class="strava-filter-btn active" data-type="all" onclick="setStravaTypeFilter(this)">Tout</button>
+          <button class="strava-filter-btn" data-type="TrailRun" onclick="setStravaTypeFilter(this)">Trail</button>
+          <button class="strava-filter-btn" data-type="Run" onclick="setStravaTypeFilter(this)">Course</button>
+          <button class="strava-filter-btn" data-type="Hike" onclick="setStravaTypeFilter(this)">Rando</button>
+        </div>
+        <div class="strava-filter-group" id="strava-period-filters">
+          <button class="strava-filter-btn active" data-period="0" onclick="setStravaPeriodFilter(this)">Tout</button>
+          <button class="strava-filter-btn" data-period="7" onclick="setStravaPeriodFilter(this)">7j</button>
+          <button class="strava-filter-btn" data-period="30" onclick="setStravaPeriodFilter(this)">30j</button>
+          <button class="strava-filter-btn" data-period="90" onclick="setStravaPeriodFilter(this)">3 mois</button>
+        </div>`;
     }
+
+    renderStravaActivities(window._allStravaActivities);
   } catch(e) {
     grid.innerHTML = `<div style="font-size:.8rem;color:var(--orange)">Impossible de charger les activités.</div>`;
   }
+}
+
+function setStravaTypeFilter(btn) {
+  document.querySelectorAll('#strava-type-filters .strava-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterStravaActivities();
+}
+
+function setStravaPeriodFilter(btn) {
+  document.querySelectorAll('#strava-period-filters .strava-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterStravaActivities();
+}
+
+function filterStravaActivities() {
+  const activeType = document.querySelector('#strava-type-filters .strava-filter-btn.active')?.dataset.type || 'all';
+  const activePeriod = parseInt(document.querySelector('#strava-period-filters .strava-filter-btn.active')?.dataset.period || '0');
+
+  let filtered = window._allStravaActivities || [];
+  if (activeType !== 'all') filtered = filtered.filter(a => a.type === activeType);
+  if (activePeriod > 0) {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - activePeriod);
+    filtered = filtered.filter(a => new Date(a.start_date_local) >= cutoff);
+  }
+  renderStravaActivities(filtered);
+}
+
+function renderStravaActivities(activities) {
+  const grid = document.getElementById('activity-grid');
+  if (!grid) return;
+
+  if (!activities || activities.length === 0) {
+    grid.innerHTML = '<div style="font-size:.82rem;color:var(--text2)">Aucune activité pour ces filtres.</div>';
+    return;
+  }
+
+  grid.innerHTML = activities.slice(0, 20).map(a => {
+    const date = new Date(a.start_date_local).toLocaleDateString('fr-FR', {day:'numeric', month:'short'});
+    const dist = (a.distance / 1000).toFixed(1);
+    const elev = Math.round(a.total_elevation_gain);
+    const time = `${Math.floor(a.moving_time/3600)}h${String(Math.floor((a.moving_time%3600)/60)).padStart(2,'0')}`;
+    const typeLabel = a.type === 'TrailRun' ? '🏔️ Trail' : a.type === 'Hike' ? '🥾 Rando' : '🏃 Course';
+    return `<div class="activity-card">
+      <div class="activity-top">
+        <div class="activity-type">${typeLabel}</div>
+        <div class="activity-date">${date}</div>
+      </div>
+      <div class="activity-name">${a.name}</div>
+      <div class="activity-stats">
+        <div class="activity-stat"><div class="activity-stat-val">${dist}</div><div class="activity-stat-lbl">km</div></div>
+        <div class="activity-stat"><div class="activity-stat-val">${time}</div><div class="activity-stat-lbl">durée</div></div>
+        <div class="activity-stat"><div class="activity-stat-val">${elev}</div><div class="activity-stat-lbl">D+</div></div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 async function disconnectStrava() {
   if (!confirm('Déconnecter Strava ?')) return;
   await supabase.from('strava_tokens').delete().eq('user_id', currentUser.id);
   await loadStravaSection();
-  document.getElementById('strava-activities').style.display = 'none';
+  const el = document.getElementById('strava-activities');
+  if (el) el.style.display = 'none';
+  window._allStravaActivities = [];
 }
 
 // Init immédiate (navigation + step bar) — pas besoin du SDK
@@ -3108,6 +3320,9 @@ async function loadDashboard() {
   await ensureValidToken();
   await loadActivePlan();
   await Promise.all([loadStravaSection(), showWeek(), loadPlans()]);
+  // Non-blocking: charge d'entraînement + activités Strava
+  loadFatigueMetrics().catch(() => {});
+  loadStravaActivitiesSection().catch(() => {});
 }
 
 // Helper : headers avec le token de session utilisateur (requis pour RLS)
