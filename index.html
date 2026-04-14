@@ -1025,6 +1025,20 @@ footer .footer-links span{color:var(--border2)}
 </div>
 
 <!-- ══ ADAPT WEEK MODAL ══ -->
+<!-- ── Upgrade modal ───────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="upgrade-modal" onclick="if(event.target===this)closeUpgradeModal()">
+  <div class="modal" style="max-width:480px;text-align:center">
+    <div class="modal-header" style="justify-content:flex-end">
+      <button class="modal-close" onclick="closeUpgradeModal()">✕</button>
+    </div>
+    <div style="font-size:2.5rem;margin-bottom:.75rem">🔒</div>
+    <div class="modal-title" id="upgrade-modal-title" style="margin-bottom:.75rem">Fonctionnalité Premium</div>
+    <p id="upgrade-modal-body" style="color:var(--text2);font-size:.9rem;line-height:1.6;margin-bottom:1.5rem"></p>
+    <button id="upgrade-modal-cta" class="price-cta cta-pro" style="width:100%;margin-bottom:.75rem"></button>
+    <button onclick="closeUpgradeModal()" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:.85rem">Non merci, rester gratuit</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="adapt-modal">
   <div class="modal" style="max-width:620px">
     <div class="modal-header">
@@ -1442,7 +1456,7 @@ footer .footer-links span{color:var(--border2)}
           <li class="no">Dashboard de suivi</li>
           <li class="no">Intégration Strava</li>
         </ul>
-        <button class="price-cta" style="background:var(--orange);color:#fff" onclick="showPage('register')">Obtenir mon PDF + Montre</button>
+        <button id="pricing-btn-pdf-watch" class="price-cta" style="background:var(--orange);color:#fff" onclick="startCheckout('pdf_watch')">Obtenir mon PDF + Montre</button>
       </div>
 
       <!-- ── SUIVI COMPLET ── -->
@@ -1461,7 +1475,7 @@ footer .footer-links span{color:var(--border2)}
           <li>Programmes illimités</li>
           <li>Accès à toutes les nouvelles fonctions</li>
         </ul>
-        <button class="price-cta cta-pro" onclick="showPage('register')">Commencer le suivi</button>
+        <button id="pricing-btn-full" class="price-cta cta-pro" onclick="startCheckout('full')">Commencer le suivi</button>
       </div>
 
     </div>
@@ -1469,6 +1483,11 @@ footer .footer-links span{color:var(--border2)}
     <div style="margin-top:2.5rem;padding:1.5rem 1.75rem;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);text-align:left;max-width:640px;margin-left:auto;margin-right:auto">
       <div style="font-weight:600;margin-bottom:.4rem;font-size:.85rem">⌚ Montres compatibles (PDF + Montre)</div>
       <p style="font-size:.8rem;color:var(--text2);font-weight:300;line-height:1.7">Garmin Connect · Apple Watch · Polar Flow · Suunto · Wahoo SYSTM — tes séances (distance, zones FC, dénivelé) sont formatées pour chaque plateforme et prêtes à l'import en un clic.</p>
+    </div>
+
+    <div id="manage-sub-section" style="display:none;margin-top:1.5rem;text-align:center">
+      <p style="font-size:.85rem;color:var(--text2);margin-bottom:.75rem">Tu gères déjà un abonnement actif.</p>
+      <button class="nav-cta" onclick="openCustomerPortal()" style="padding:.6rem 1.4rem;font-size:.85rem">Gérer mon abonnement</button>
     </div>
   </div>
   <footer>
@@ -1765,12 +1784,17 @@ const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 const STRAVA_CLIENT_ID = '216661';
 const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/generate-plan`;
 const STRAVA_AUTH_URL   = `${SUPABASE_URL}/functions/v1/strava-auth`;
+const CHECKOUT_URL      = `${SUPABASE_URL}/functions/v1/create-checkout-session`;
+const PORTAL_URL        = `${SUPABASE_URL}/functions/v1/customer-portal`;
 
 // ─────────────────────────────────────────────
 //  Init Supabase (client inline disponible)
 // ─────────────────────────────────────────────
 let supabase = _supa;
 let currentUser = _supa.auth.user;
+
+// Current subscription tier: 'free' | 'pdf_watch' | 'full'
+window._userTier = 'free';
 let currentLang = 'fr';
 let currentStep = 1;
 const TOTAL = 8;
@@ -1786,6 +1810,189 @@ function showPage(id) {
   if (id === 'dashboard') loadDashboard();
   window.scrollTo(0,0);
 }
+
+// ─────────────────────────────────────────────
+//  ABONNEMENT — chargement du tier utilisateur
+// ─────────────────────────────────────────────
+async function loadUserSubscription() {
+  if (!currentUser) return;
+  try {
+    const token = supabase.auth.getToken() || SUPABASE_ANON;
+    const r = await fetch(
+      `${SUPABASE_URL}/rest/v1/user_subscriptions?user_id=eq.${currentUser.id}&limit=1`,
+      { headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${token}` } }
+    );
+    if (!r.ok) return;
+    const rows = await r.json();
+    window._userTier = rows[0]?.tier || 'free';
+    // Update pricing buttons to reflect current tier
+    _updatePricingButtons();
+  } catch (e) {
+    console.warn('[sub] loadUserSubscription error', e);
+  }
+}
+
+function _updatePricingButtons() {
+  const tier = window._userTier;
+  const btnPdfWatch  = document.getElementById('pricing-btn-pdf-watch');
+  const btnFull      = document.getElementById('pricing-btn-full');
+  const manageSection = document.getElementById('manage-sub-section');
+
+  if (btnPdfWatch) {
+    if (tier === 'pdf_watch' || tier === 'full') {
+      btnPdfWatch.textContent = '✓ Déjà activé';
+      btnPdfWatch.disabled = true;
+    } else {
+      btnPdfWatch.textContent = 'Obtenir mon PDF + Montre';
+      btnPdfWatch.disabled = false;
+    }
+  }
+  if (btnFull) {
+    if (tier === 'full') {
+      btnFull.textContent = '✓ Abonnement actif';
+      btnFull.disabled = true;
+    } else {
+      btnFull.textContent = 'Commencer le suivi';
+      btnFull.disabled = false;
+    }
+  }
+  if (manageSection) {
+    manageSection.style.display = (tier === 'full') ? 'block' : 'none';
+  }
+}
+
+// ─────────────────────────────────────────────
+//  PAIEMENT — Stripe Checkout
+// ─────────────────────────────────────────────
+async function startCheckout(tier) {
+  if (!currentUser) { showPage('login'); return; }
+  const btn = event?.target;
+  const origText = btn?.textContent;
+  if (btn) { btn.textContent = '⏳ Chargement…'; btn.disabled = true; }
+  try {
+    const token = supabase.auth.getToken() || SUPABASE_ANON;
+    const r = await fetch(CHECKOUT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        'apikey': SUPABASE_ANON,
+      },
+      body: JSON.stringify({ tier }),
+    });
+    const data = await r.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert('Erreur lors de la création de la session de paiement. Réessaie dans quelques instants.');
+      if (btn) { btn.textContent = origText; btn.disabled = false; }
+    }
+  } catch (e) {
+    console.error('[checkout] error', e);
+    alert('Une erreur réseau s\'est produite. Vérifie ta connexion et réessaie.');
+    if (btn) { btn.textContent = origText; btn.disabled = false; }
+  }
+}
+
+async function openCustomerPortal() {
+  if (!currentUser) { showPage('login'); return; }
+  try {
+    const token = supabase.auth.getToken() || SUPABASE_ANON;
+    const r = await fetch(PORTAL_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        'apikey': SUPABASE_ANON,
+      },
+    });
+    const data = await r.json();
+    if (data.url) window.location.href = data.url;
+    else alert('Impossible d\'ouvrir le portail de gestion. Contacte le support.');
+  } catch (e) {
+    console.error('[portal] error', e);
+    alert('Une erreur réseau s\'est produite.');
+  }
+}
+
+// ─────────────────────────────────────────────
+//  FEATURE GATING — vérification du tier
+// ─────────────────────────────────────────────
+const TIER_RANK = { free: 0, pdf_watch: 1, full: 2 };
+
+function requireTier(needed) {
+  return TIER_RANK[window._userTier] >= TIER_RANK[needed];
+}
+
+function showUpgradeModal(needed) {
+  const modal = document.getElementById('upgrade-modal');
+  if (!modal) return;
+  const title  = modal.querySelector('#upgrade-modal-title');
+  const body   = modal.querySelector('#upgrade-modal-body');
+  const btnCta = modal.querySelector('#upgrade-modal-cta');
+
+  if (needed === 'pdf_watch') {
+    title.textContent  = 'Fonctionnalité PDF + Montre';
+    body.textContent   = 'L\'export PDF et l\'envoi vers ta montre sont disponibles à partir du plan PDF + Montre (2 € unique).';
+    btnCta.textContent = 'Obtenir PDF + Montre — 2 €';
+    btnCta.onclick     = () => { closeUpgradeModal(); startCheckoutDirect('pdf_watch'); };
+  } else {
+    title.textContent  = 'Fonctionnalité Suivi complet';
+    body.textContent   = 'Le dashboard de suivi, l\'intégration Strava et l\'adaptation IA sont disponibles avec le plan Suivi complet (8 €/mois).';
+    btnCta.textContent = 'Commencer le suivi — 8 €/mois';
+    btnCta.onclick     = () => { closeUpgradeModal(); startCheckoutDirect('full'); };
+  }
+  modal.classList.add('open');
+}
+
+function closeUpgradeModal() {
+  document.getElementById('upgrade-modal')?.classList.remove('open');
+}
+
+// Version sans event (pour appel programmatique)
+async function startCheckoutDirect(tier) {
+  if (!currentUser) { showPage('login'); return; }
+  try {
+    const token = supabase.auth.getToken() || SUPABASE_ANON;
+    const r = await fetch(CHECKOUT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        'apikey': SUPABASE_ANON,
+      },
+      body: JSON.stringify({ tier }),
+    });
+    const data = await r.json();
+    if (data.url) window.location.href = data.url;
+  } catch (e) {
+    console.error('[checkout] error', e);
+    alert('Une erreur réseau s\'est produite.');
+  }
+}
+
+// ─────────────────────────────────────────────
+//  Gestion du retour depuis Stripe Checkout
+// ─────────────────────────────────────────────
+(function handlePaymentReturn() {
+  const params = new URLSearchParams(window.location.search);
+  const payment = params.get('payment');
+  const tier    = params.get('tier');
+  if (!payment) return;
+  // Clean URL
+  history.replaceState({}, '', window.location.pathname);
+  if (payment === 'success') {
+    // Tier will be updated via webhook; reload subscription after a short delay
+    setTimeout(async () => {
+      await loadUserSubscription();
+      const tierLabels = { pdf_watch: 'PDF + Montre', full: 'Suivi complet' };
+      const label = tierLabels[tier] || 'supérieur';
+      alert(`🎉 Paiement réussi ! Ton plan ${label} est maintenant actif.`);
+    }, 1500);
+  } else if (payment === 'cancel') {
+    // Nothing to do — user cancelled
+  }
+})();
 
 function setLang(lang) {
   currentLang = lang;
@@ -2842,6 +3049,13 @@ function downloadFile(content, filename, mimeType, isBinary = false) {
 //  EXPORT PDF
 // ─────────────────────────────────────────────
 async function exportPDF() {
+  // Feature gate — pdf_watch tier required
+  if (!requireTier('pdf_watch')) {
+    if (!currentUser) { showPage('login'); return; }
+    showUpgradeModal('pdf_watch');
+    return;
+  }
+
   const btn = event?.target;
   if (btn) { btn.textContent = '⏳ Génération…'; btn.disabled = true; }
 
@@ -3243,6 +3457,8 @@ async function loadStravaSection() {
 
 async function loadStravaActivitiesSection() {
   if (!currentUser) return;
+  // Feature gate — full tier required for Strava activities
+  if (!requireTier('full')) return;
   const { data: tokenRow } = await supabase.from('strava_tokens').select('*').eq('user_id', currentUser.id).single();
   if (!tokenRow) return;
   let token;
@@ -3675,6 +3891,7 @@ async function loadDashboard() {
   _weekOffset = 0;
 
   await ensureValidToken();
+  await loadUserSubscription();
   await loadActivePlan();
   await Promise.all([loadStravaSection(), showWeek(), loadPlans()]);
   // Non-blocking: charge d'entraînement + activités Strava
@@ -4451,6 +4668,12 @@ function closeAdaptModal() {
 }
 
 function openAdaptModal() {
+  // Feature gate — full tier required
+  if (!requireTier('full')) {
+    showUpgradeModal('full');
+    return;
+  }
+
   const monday = getMondayForOffset(_weekOffset);
   const sj = window._activePlanSessionsJson;
   if (!sj && !window._activePlanContent) {
