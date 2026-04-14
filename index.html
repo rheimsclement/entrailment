@@ -1534,7 +1534,7 @@ footer .footer-links span{color:var(--border2)}
 
     <div class="privacy-section">
       <h2>1. Qui sommes-nous ?</h2>
-      <p>En Trailment est une application web de coaching trail propulsée par l'IA Claude (Anthropic). Elle est éditée et exploitée à titre personnel. Pour toute question relative à tes données personnelles, tu peux nous contacter à l'adresse : <strong>contact@entrailment.app</strong>.</p>
+      <p>En Trailment est une application web de coaching trail propulsée par l'IA Claude (Anthropic). Elle est éditée et exploitée à titre personnel. Pour toute question relative à tes données personnelles, tu peux nous contacter à l'adresse : <strong>contact@entrailment.com</strong>.</p>
     </div>
 
     <div class="privacy-section">
@@ -1601,7 +1601,7 @@ footer .footer-links span{color:var(--border2)}
         <li><strong>Droit à la portabilité</strong> — recevoir tes données dans un format structuré.</li>
         <li><strong>Droit d'opposition</strong> — t'opposer à tout traitement.</li>
       </ul>
-      <p>Pour exercer ces droits, contacte-nous à <strong>contact@entrailment.app</strong>. Nous nous engageons à répondre dans un délai de 30 jours.</p>
+      <p>Pour exercer ces droits, contacte-nous à <strong>contact@entrailment.com</strong>. Nous nous engageons à répondre dans un délai de 30 jours.</p>
     </div>
 
     <div class="privacy-section">
@@ -1617,7 +1617,7 @@ footer .footer-links span{color:var(--border2)}
     <div class="privacy-section">
       <h2>9. Contact</h2>
       <p>Pour toute question sur cette politique ou sur le traitement de tes données personnelles :<br>
-      <strong>contact@entrailment.app</strong></p>
+      <strong>contact@entrailment.com</strong></p>
     </div>
 
   </div>
@@ -3601,7 +3601,7 @@ async function resetPassword() {
   const btn = event?.target;
   if (btn) { btn.disabled = true; btn.textContent = 'Envoi…'; }
 
-  const redirectTo = 'https://rheimsclement.github.io/entrailment/';
+  const redirectTo = 'https://entrailment.com/';
   await fetch(`${SUPABASE_URL}/auth/v1/recover?redirect_to=${encodeURIComponent(redirectTo)}`, {
     method: 'POST',
     headers: {
