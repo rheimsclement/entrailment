@@ -1,7 +1,6 @@
 // @ts-nocheck
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import Stripe from 'https://esm.sh/stripe@13?target=deno';
+import Stripe from 'npm:stripe@13';
 
 /**
  * POST /functions/v1/stripe-webhook
@@ -16,7 +15,6 @@ import Stripe from 'https://esm.sh/stripe@13?target=deno';
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, {
   apiVersion: '2023-10-16',
-  httpClient: Stripe.createFetchHttpClient(),
 });
 
 const supabaseAdmin = createClient(
@@ -26,7 +24,7 @@ const supabaseAdmin = createClient(
 
 const WEBHOOK_SECRET = Deno.env.get('STRIPE_WEBHOOK_SECRET')!;
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   const body = await req.text();
   const sig  = req.headers.get('stripe-signature') ?? '';
 
