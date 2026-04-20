@@ -2241,10 +2241,15 @@ function markdownToHtml(text) {
     if (t.match(/renfor|muscu|gainage/)) return '💪';
     if (t.match(/côte|hill/)) return '📈';
     if (t.match(/trail|technique/)) return '🥾';
+    if (t.match(/course b|course prépa|préparation/)) return '🚩';
+    if (t.match(/course objectif|objectif principal/)) return '🏆';
     if (t.match(/course|race|compét/)) return '🏁';
     if (t.match(/rando/)) return '🗻';
     return '🏃';
   };
+
+  const isCourseB = type => /course b|course prépa/i.test(type||'');
+  const isCourseObjectif = type => /course objectif/i.test(type||'');
 
   const weekPhaseColor = title => {
     const t = (title||'').toLowerCase();
@@ -2320,12 +2325,19 @@ function markdownToHtml(text) {
               </div>
             </div>`;
           } else {
-            html += `<div class="plan-session">
+            const courseB = isCourseB(type);
+            const courseObj = isCourseObjectif(type);
+            const sessionBorder = courseObj
+              ? 'border-left:3px solid var(--green);background:var(--green-bg)'
+              : courseB
+              ? 'border-left:3px solid var(--orange);background:var(--orange-bg)'
+              : '';
+            html += `<div class="plan-session" style="${sessionBorder}">
               <div class="ps-day">${day}</div>
               <div class="ps-content">
                 <span class="ps-icon">${icon}</span>
                 <div class="ps-info">
-                  <div class="ps-type">${parseInline(type)}</div>
+                  <div class="ps-type" style="${courseObj?'color:var(--green);font-weight:700':courseB?'color:var(--orange);font-weight:700':''}">${parseInline(type)}</div>
                   ${dur ? `<span class="ps-duration">⏱ ${dur}</span>` : ''}
                   ${zone ? `<span class="ps-zone" style="background:${zoneColor(zone)}22;color:${zoneColor(zone)};border:1px solid ${zoneColor(zone)}44">${zone}</span>` : ''}
                   ${detail ? `<div class="ps-detail">${parseInline(detail.substring(0,120))}${detail.length>120?'…':''}</div>` : ''}
@@ -5471,35 +5483,51 @@ async function savePlan(content, meta) {
 // Extrait les séances structurées via Claude (appel léger)
 async function extractSessionsJson(planContent) {
   try {
+    // Send up to 12 000 chars — enough to cover plans of 16+ weeks
+    const excerpt = planContent.substring(0, 12000);
     const r = await fetch(EDGE_FUNCTION_URL, {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify({
-        system: 'Tu es un assistant qui extrait des données structurées. Réponds uniquement en JSON valide, sans texte autour.',
-        prompt: `Extrait toutes les séances d'entraînement de ce programme trail et retourne un JSON structuré.
+        system: 'Tu es un assistant qui extrait des données structurées. Réponds UNIQUEMENT en JSON valide, sans texte autour, sans markdown, sans explication.',
+        prompt: `Extrait TOUTES les séances de ce programme trail semaine par semaine et retourne un JSON structuré.
 
-PROGRAMME:
-${planContent.substring(0, 1500)}
+RÈGLES CRITIQUES :
+- Inclure TOUTES les semaines sans exception, y compris les semaines de récupération et de tapering
+- Les courses de préparation (Course B, course test, trail de préparation) doivent apparaître comme type "Course B" le bon jour
+- La course objectif principale doit apparaître comme type "Course objectif"
+- day_index : 0=lundi, 1=mardi, 2=mercredi, 3=jeudi, 4=vendredi, 5=samedi, 6=dimanche
+- Chaque semaine doit avoir exactement 7 jours (day_index 0 à 6)
+- Si un jour est repos, type="Repos", duration="", zone="", detail=""
+- Extrait start_day et start_month depuis le titre de la semaine (ex: "25 au 31 mars" → start_day=25, start_month=3)
+- year: l'année du début de semaine (déduis-la du contexte du plan)
 
-Retourne un tableau JSON avec une entrée par semaine :
+TYPES DE SÉANCES RECONNUS :
+"Repos" | "Endurance fondamentale" | "Sortie longue" | "Fractionné" | "Côtes VMA" | "Tempo/Seuil" | "Back-to-back" | "Descente technique" | "Marche D+" | "Renforcement" | "Récupération active" | "Course B" | "Course objectif" | autre type précis
+
+FORMAT JSON ATTENDU :
 [
   {
     "week_num": 1,
     "week_title": "Semaine 1 — 25 au 31 mars — Développement",
     "start_day": 25,
     "start_month": 3,
+    "year": 2025,
     "volume_hours": 8.5,
     "days": [
-      {"day": "lundi", "day_index": 0, "type": "Récupération active", "duration": "30–40 min", "zone": "Z1", "detail": "Footing léger"},
-      {"day": "mardi", "day_index": 1, "type": "Fractionné court", "duration": "1h", "zone": "Z4", "detail": "8×3min Z4"},
-      {"day": "mercredi", "day_index": 2, "type": "Repos", "duration": "", "zone": "", "detail": ""},
-      ...tous les 7 jours
+      {"day": "lundi",    "day_index": 0, "type": "Repos",                "duration": "",       "zone": "",   "detail": "Récupération, mobilité 10min"},
+      {"day": "mardi",    "day_index": 1, "type": "Endurance fondamentale","duration": "1h",    "zone": "Z2", "detail": "EF vallonné, D+ 200m"},
+      {"day": "mercredi", "day_index": 2, "type": "Renforcement",          "duration": "45min", "zone": "",   "detail": "Squat bulgare 3×12, gainage 3×45s"},
+      {"day": "jeudi",    "day_index": 3, "type": "Repos",                "duration": "",       "zone": "",   "detail": ""},
+      {"day": "vendredi", "day_index": 4, "type": "Fractionné",           "duration": "1h15",  "zone": "Z4", "detail": "10×1min Z4 rec 1min"},
+      {"day": "samedi",   "day_index": 5, "type": "Sortie longue",        "duration": "2h30",  "zone": "Z1", "detail": "Trail Z1 strict, D+ 600m"},
+      {"day": "dimanche", "day_index": 6, "type": "Repos",                "duration": "",       "zone": "",   "detail": ""}
     ]
-  },
-  ...toutes les semaines
+  }
 ]
 
-Règles : day_index va de 0 (lundi) à 6 (dimanche). Si repos, type="Repos". Extrait start_day et start_month depuis le titre de la semaine si disponible.`
+PROGRAMME À EXTRAIRE :
+${excerpt}`
       })
     });
     const data = await r.json();
@@ -5656,6 +5684,9 @@ RÈGLES ABSOLUES :
 - Sortie longue TOUJOURS Z1
 - +10% volume max/semaine, récup toutes les 3-4 semaines
 - -30-40% charge avant course B, récupération complète après
+- ⚠️ COURSES B / SOUS-ÉCHÉANCES : chaque course de préparation DOIT apparaître comme une ligne dans le tableau du jour exact correspondant, avec le format : | [Jour] | Course B — [Nom] | [distance]km / [D+]m D+ | Course préparation [objectif] — Effort contrôlé [zone] |
+- ⚠️ COURSE OBJECTIF : apparaît comme ligne dans le tableau de la semaine finale avec : | [Jour] | Course objectif — ${raceName||'Course'} | ${raceDistanceKm||'?'}km / ${raceElev||'?'}m D+ | COURSE PRINCIPALE — objectif ${chronoGoal||'finisher'} |
+- ⚠️ Cohérence absolue : ce qui est dans les tableaux hebdomadaires = ce qui est dans le PDF. Rien ne peut figurer dans une section sans figurer dans le tableau de la semaine concernée.
 
 DATES DES SEMAINES (utilise exactement ces dates) :
 ${weekRanges.join('\n')}
