@@ -1,5 +1,4 @@
 // @ts-nocheck
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,18 +10,15 @@ Deno.serve(async (req) => {
     return new Response('ok', { headers: corsHeaders });
   }
 
-  const STRIPE_KEY = Deno.env.get('STRIPE_SECRET_KEY') ?? '';
-  const PRICE_PDF  = Deno.env.get('STRIPE_PRICE_PDF_WATCH') ?? '';
-  const PRICE_FULL = Deno.env.get('STRIPE_PRICE_FULL') ?? '';
-  const SITE_URL   = Deno.env.get('SITE_URL') ?? 'https://entrailment.com';
-
-  const supabase = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-  );
+  const STRIPE_KEY    = Deno.env.get('STRIPE_SECRET_KEY') ?? '';
+  const PRICE_PDF     = Deno.env.get('STRIPE_PRICE_PDF_WATCH') ?? '';
+  const PRICE_FULL    = Deno.env.get('STRIPE_PRICE_FULL') ?? '';
+  const SITE_URL      = Deno.env.get('SITE_URL') ?? 'https://entrailment.com';
+  const SUPABASE_URL  = Deno.env.get('SUPABASE_URL') ?? '';
+  const SERVICE_KEY   = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
 
   try {
-    // ── Auth — decode JWT directly (compatible with ES256 projects) ───────────
+    // ── Auth — decode JWT without any Supabase SDK ────────────────────────────
     const token = (req.headers.get('authorization') ?? '').replace('Bearer ', '');
     const payload = decodeJwt(token);
     if (!payload?.sub) return json({ error: 'Unauthorized' }, 401);
@@ -35,25 +31,24 @@ Deno.serve(async (req) => {
     const priceId = tier === 'pdf_watch' ? PRICE_PDF : tier === 'full' ? PRICE_FULL : null;
     if (!priceId) return json({ error: 'Invalid tier' }, 400);
 
-    // ── Retrieve or create Stripe customer ────────────────────────────────────
-    const { data: sub } = await supabase
-      .from('user_subscriptions')
-      .select('stripe_customer_id')
-      .eq('user_id', userId)
-      .single();
-
-    let customerId = sub?.stripe_customer_id;
+    // ── Retrieve or create Stripe customer (direct REST, no SDK) ──────────────
+    const rows = await dbGet(
+      SUPABASE_URL, SERVICE_KEY,
+      `user_subscriptions?user_id=eq.${userId}&select=stripe_customer_id&limit=1`
+    );
+    let customerId = rows[0]?.stripe_customer_id ?? null;
 
     if (!customerId) {
-      const cRes = await stripeCall('POST', '/v1/customers', STRIPE_KEY, new URLSearchParams({
+      const customer = await stripeCall('POST', '/v1/customers', STRIPE_KEY, new URLSearchParams({
         email: userEmail,
         'metadata[supabase_uid]': userId,
       }));
-      customerId = cRes.id;
-      await supabase.from('user_subscriptions').upsert(
-        { user_id: userId, stripe_customer_id: customerId, tier: 'free' },
-        { onConflict: 'user_id' }
-      );
+      customerId = customer.id;
+      await dbUpsert(SUPABASE_URL, SERVICE_KEY, 'user_subscriptions', {
+        user_id: userId,
+        stripe_customer_id: customerId,
+        tier: 'free',
+      });
     }
 
     // ── Create Checkout session ───────────────────────────────────────────────
@@ -67,14 +62,12 @@ Deno.serve(async (req) => {
       'metadata[supabase_uid]': userId,
       'metadata[tier]': tier,
     });
-
     if (tier === 'full') {
       params.set('subscription_data[metadata][supabase_uid]', userId);
       params.set('subscription_data[metadata][tier]', tier);
     }
 
     const session = await stripeCall('POST', '/v1/checkout/sessions', STRIPE_KEY, params);
-
     if (!session.url) {
       console.error('Stripe error:', JSON.stringify(session));
       return json({ error: session.error?.message ?? 'Stripe error' }, 500);
@@ -82,32 +75,35 @@ Deno.serve(async (req) => {
 
     return json({ url: session.url });
   } catch (err) {
-    console.error(err);
-    return json({ error: err.message }, 500);
+    console.error('Edge function error:', err);
+    return json({ error: String(err) }, 500);
   }
 });
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// ── Supabase REST helpers (no SDK) ────────────────────────────────────────────
 
-function decodeJwt(token) {
-  try {
-    const parts = token.split('.');
-    if (parts.length !== 3) return null;
-    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
-    // Reject expired tokens
-    if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) return null;
-    return payload;
-  } catch {
-    return null;
-  }
+function dbHeaders(key) {
+  return {
+    'apikey': key,
+    'Authorization': `Bearer ${key}`,
+    'Content-Type': 'application/json',
+  };
 }
 
-function json(data, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+async function dbGet(url, key, path) {
+  const res = await fetch(`${url}/rest/v1/${path}`, { headers: dbHeaders(key) });
+  return res.json();
+}
+
+async function dbUpsert(url, key, table, data) {
+  await fetch(`${url}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: { ...dbHeaders(key), 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+    body: JSON.stringify(data),
   });
 }
+
+// ── Stripe REST helper ────────────────────────────────────────────────────────
 
 async function stripeCall(method, path, key, body) {
   const res = await fetch(`https://api.stripe.com${path}`, {
@@ -119,4 +115,25 @@ async function stripeCall(method, path, key, body) {
     body,
   });
   return res.json();
+}
+
+// ── JWT decode (no verification — trusted Edge Function environment) ──────────
+
+function decodeJwt(token) {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+    if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) return null;
+    return payload;
+  } catch { return null; }
+}
+
+// ── Response helper ───────────────────────────────────────────────────────────
+
+function json(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
 }
