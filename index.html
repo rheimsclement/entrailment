@@ -289,6 +289,19 @@ input[type="range"]{flex:1;accent-color:var(--green);height:4px;background:var(-
 .pricing-title{font-family:'Fraunces',serif;font-size:clamp(1.8rem,4vw,2.6rem);font-weight:600;letter-spacing:-.02em;margin-bottom:.5rem}
 .pricing-sub{color:var(--text2);font-size:.95rem;font-weight:300;margin-bottom:3rem;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.75}
 .pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.25rem;text-align:left}
+/* ── Dashboard subscription section ── */
+.dash-sub-current{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin-bottom:1.25rem}
+.dash-sub-badge{display:inline-flex;align-items:center;gap:.5rem;padding:.35rem .9rem;border-radius:100px;font-size:.78rem;font-weight:700;letter-spacing:.04em}
+.dash-sub-badge.free{background:var(--bg2);color:var(--text2)}
+.dash-sub-badge.pdf{background:var(--orange-bg);color:var(--orange)}
+.dash-sub-badge.full{background:var(--green-bg);color:var(--green)}
+.dash-sub-plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem}
+.dash-sub-plan{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;display:flex;flex-direction:column;gap:.75rem}
+.dash-sub-plan.highlight{border-color:var(--green)}
+.dash-sub-plan-name{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text2)}
+.dash-sub-plan-price{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:600;letter-spacing:-.02em}
+.dash-sub-plan-price .per{font-family:'Plus Jakarta Sans',sans-serif;font-size:.8rem;font-weight:400;color:var(--text2)}
+.dash-sub-plan-desc{font-size:.8rem;color:var(--text2);line-height:1.5;flex:1}
 .price-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:2rem;box-shadow:var(--shadow);position:relative}
 .price-card.featured{border-color:var(--green);box-shadow:0 4px 24px rgba(45,106,79,.15)}
 .price-card.gold-card{border-color:var(--gold)}
@@ -1019,6 +1032,14 @@ footer .footer-links span{color:var(--border2)}
       <div style="grid-column:1/-1;padding:3rem;text-align:center;color:var(--text3)">
         <div class="loading-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
       </div>
+    </div>
+
+    <!-- Mon abonnement -->
+    <div class="dash-section-title" style="margin-top:2.5rem">
+      <span>Mon abonnement</span>
+    </div>
+    <div id="dash-subscription-section" style="margin-bottom:2rem">
+      <!-- Rempli par renderDashSubscription() -->
     </div>
 
   </div>
@@ -1825,8 +1846,8 @@ async function loadUserSubscription() {
     if (!r.ok) return;
     const rows = await r.json();
     window._userTier = rows[0]?.tier || 'free';
-    // Update pricing buttons to reflect current tier
     _updatePricingButtons();
+    renderDashSubscription();
   } catch (e) {
     console.warn('[sub] loadUserSubscription error', e);
   }
@@ -1859,6 +1880,60 @@ function _updatePricingButtons() {
   if (manageSection) {
     manageSection.style.display = (tier === 'full') ? 'block' : 'none';
   }
+}
+
+function renderDashSubscription() {
+  const el = document.getElementById('dash-subscription-section');
+  if (!el) return;
+  const tier = window._userTier;
+
+  const badgeClass = tier === 'full' ? 'full' : tier === 'pdf_watch' ? 'pdf' : 'free';
+  const badgeLabel = tier === 'full' ? '✦ Suivi complet' : tier === 'pdf_watch' ? '⬇ PDF + Montre' : 'Gratuit';
+
+  const manageBtn = tier === 'full'
+    ? `<button class="btn-secondary" style="font-size:.8rem;padding:.5rem 1rem" onclick="openCustomerPortal()">Gérer mon abonnement</button>`
+    : '';
+
+  let plansHtml = '';
+  if (tier === 'free') {
+    plansHtml = `
+      <div class="dash-sub-plans">
+        <div class="dash-sub-plan">
+          <div class="dash-sub-plan-name">PDF + Montre</div>
+          <div class="dash-sub-plan-price"><sup style="font-size:.9rem">€</sup>2<span class="per"> une fois</span></div>
+          <div class="dash-sub-plan-desc">Export PDF haute qualité + séances directement sur ta montre Garmin, Apple Watch, Polar…</div>
+          <button class="price-cta" style="background:var(--orange);color:#fff;margin-top:auto" onclick="startCheckout('pdf_watch')">Obtenir — 2 €</button>
+        </div>
+        <div class="dash-sub-plan highlight">
+          <div class="price-badge" style="position:relative;top:unset;left:unset;transform:none;display:inline-block;margin-bottom:.25rem">Recommandé</div>
+          <div class="dash-sub-plan-name">Suivi complet</div>
+          <div class="dash-sub-plan-price"><sup style="font-size:.9rem">€</sup>8<span class="per"> /mois</span></div>
+          <div class="dash-sub-plan-desc">Dashboard, Strava, adaptation IA de la semaine, analyse charge/fatigue et toutes les futures fonctionnalités.</div>
+          <button class="price-cta cta-pro" style="margin-top:auto" onclick="startCheckout('full')">Commencer — 8 €/mois</button>
+        </div>
+      </div>`;
+  } else if (tier === 'pdf_watch') {
+    plansHtml = `
+      <div class="dash-sub-plans">
+        <div class="dash-sub-plan highlight">
+          <div class="price-badge" style="position:relative;top:unset;left:unset;transform:none;display:inline-block;margin-bottom:.25rem">Recommandé</div>
+          <div class="dash-sub-plan-name">Suivi complet</div>
+          <div class="dash-sub-plan-price"><sup style="font-size:.9rem">€</sup>8<span class="per"> /mois</span></div>
+          <div class="dash-sub-plan-desc">Dashboard, Strava, adaptation IA de la semaine, analyse charge/fatigue et toutes les futures fonctionnalités.</div>
+          <button class="price-cta cta-pro" style="margin-top:auto" onclick="startCheckout('full')">Passer au Suivi complet</button>
+        </div>
+      </div>`;
+  }
+
+  el.innerHTML = `
+    <div class="dash-sub-current">
+      <div>
+        <div style="font-size:.8rem;color:var(--text2);margin-bottom:.4rem">Ton plan actuel</div>
+        <span class="dash-sub-badge ${badgeClass}">${badgeLabel}</span>
+      </div>
+      ${manageBtn}
+    </div>
+    ${plansHtml}`;
 }
 
 // ─────────────────────────────────────────────
@@ -3894,6 +3969,7 @@ async function loadDashboard() {
   _weekOffset = 0;
 
   await ensureValidToken();
+  renderDashSubscription();
   await loadUserSubscription();
   await loadActivePlan();
   await Promise.all([loadStravaSection(), showWeek(), loadPlans()]);
