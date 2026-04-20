@@ -1,29 +1,5 @@
 // @ts-nocheck
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import Stripe from 'npm:stripe@13';
-
-/**
- * POST /functions/v1/create-checkout-session
- * Body: { tier: 'pdf_watch' | 'full' }
- *
- * Creates a Stripe Checkout session and returns the URL.
- * - pdf_watch → one-time payment, 2 €
- * - full      → monthly subscription, 8 €/month
- */
-
-const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, {
-  apiVersion: '2023-10-16',
-});
-
-const supabaseAdmin = createClient(
-  Deno.env.get('SUPABASE_URL')!,
-  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-);
-
-const PRICE_IDS: Record<string, string> = {
-  pdf_watch: Deno.env.get('STRIPE_PRICE_PDF_WATCH')!,  // one-time 2 €
-  full:      Deno.env.get('STRIPE_PRICE_FULL')!,        // subscription 8 €/mo
-};
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -35,76 +11,98 @@ Deno.serve(async (req) => {
     return new Response('ok', { headers: corsHeaders });
   }
 
+  const STRIPE_KEY = Deno.env.get('STRIPE_SECRET_KEY') ?? '';
+  const PRICE_PDF  = Deno.env.get('STRIPE_PRICE_PDF_WATCH') ?? '';
+  const PRICE_FULL = Deno.env.get('STRIPE_PRICE_FULL') ?? '';
+  const SITE_URL   = Deno.env.get('SITE_URL') ?? 'https://entrailment.com';
+
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+  );
+
   try {
     // ── Auth ──────────────────────────────────────────────────────────────────
-    const authHeader = req.headers.get('authorization') ?? '';
-    const token = authHeader.replace('Bearer ', '');
-
-    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
-    if (authError || !user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    const token = (req.headers.get('authorization') ?? '').replace('Bearer ', '');
+    const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
+    if (authErr || !user) {
+      return json({ error: 'Unauthorized' }, 401);
     }
 
     // ── Payload ───────────────────────────────────────────────────────────────
-    const { tier } = await req.json() as { tier: string };
-    const priceId = PRICE_IDS[tier];
-    if (!priceId) {
-      return new Response(JSON.stringify({ error: 'Invalid tier' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
+    const { tier } = await req.json();
+    const priceId = tier === 'pdf_watch' ? PRICE_PDF : tier === 'full' ? PRICE_FULL : null;
+    if (!priceId) return json({ error: 'Invalid tier' }, 400);
 
     // ── Retrieve or create Stripe customer ────────────────────────────────────
-    const { data: sub } = await supabaseAdmin
+    const { data: sub } = await supabase
       .from('user_subscriptions')
       .select('stripe_customer_id')
       .eq('user_id', user.id)
       .single();
 
-    let customerId: string | undefined = sub?.stripe_customer_id ?? undefined;
+    let customerId = sub?.stripe_customer_id;
 
     if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: user.email,
-        metadata: { supabase_uid: user.id },
-      });
-      customerId = customer.id;
-
-      // Persist immediately so retries don't create duplicate customers
-      await supabaseAdmin
-        .from('user_subscriptions')
-        .upsert({ user_id: user.id, stripe_customer_id: customerId, tier: 'free' }, { onConflict: 'user_id' });
+      const cRes = await stripe('POST', '/v1/customers', STRIPE_KEY, new URLSearchParams({
+        email: user.email ?? '',
+        'metadata[supabase_uid]': user.id,
+      }));
+      customerId = cRes.id;
+      await supabase.from('user_subscriptions').upsert(
+        { user_id: user.id, stripe_customer_id: customerId, tier: 'free' },
+        { onConflict: 'user_id' }
+      );
     }
 
     // ── Create Checkout session ───────────────────────────────────────────────
-    const siteUrl = Deno.env.get('SITE_URL') ?? 'https://entrailment.com';
-
-    const sessionParams: Stripe.Checkout.SessionCreateParams = {
+    const params = new URLSearchParams({
       customer: customerId,
-      line_items: [{ price: priceId, quantity: 1 }],
+      'line_items[0][price]': priceId,
+      'line_items[0][quantity]': '1',
       mode: tier === 'full' ? 'subscription' : 'payment',
-      success_url: `${siteUrl}/?payment=success&tier=${tier}`,
-      cancel_url:  `${siteUrl}/?payment=cancel`,
-      metadata: { supabase_uid: user.id, tier },
-      ...(tier === 'full' && {
-        subscription_data: { metadata: { supabase_uid: user.id, tier } },
-      }),
-    };
-
-    const session = await stripe.checkout.sessions.create(sessionParams);
-
-    return new Response(JSON.stringify({ url: session.url }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      success_url: `${SITE_URL}/?payment=success&tier=${tier}`,
+      cancel_url: `${SITE_URL}/?payment=cancel`,
+      'metadata[supabase_uid]': user.id,
+      'metadata[tier]': tier,
     });
+
+    if (tier === 'full') {
+      params.set('subscription_data[metadata][supabase_uid]', user.id);
+      params.set('subscription_data[metadata][tier]', tier);
+    }
+
+    const session = await stripe('POST', '/v1/checkout/sessions', STRIPE_KEY, params);
+
+    if (!session.url) {
+      console.error('Stripe error:', JSON.stringify(session));
+      return json({ error: session.error?.message ?? 'Stripe error' }, 500);
+    }
+
+    return json({ url: session.url });
   } catch (err) {
     console.error(err);
-    return new Response(JSON.stringify({ error: (err as Error).message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return json({ error: err.message }, 500);
   }
 });
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function json(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
+}
+
+async function stripe(method, path, key, body) {
+  const res = await fetch(`https://api.stripe.com${path}`, {
+    method,
+    headers: {
+      'Authorization': `Bearer ${key}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body,
+  });
+  return res.json();
+}
