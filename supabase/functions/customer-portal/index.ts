@@ -20,18 +20,17 @@ Deno.serve(async (req) => {
   );
 
   try {
-    // ── Auth ──────────────────────────────────────────────────────────────────
+    // ── Auth — decode JWT directly (compatible with ES256 projects) ───────────
     const token = (req.headers.get('authorization') ?? '').replace('Bearer ', '');
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-    if (error || !user) {
-      return json({ error: 'Unauthorized' }, 401);
-    }
+    const payload = decodeJwt(token);
+    if (!payload?.sub) return json({ error: 'Unauthorized' }, 401);
+    const userId = payload.sub;
 
     // ── Look up Stripe customer ───────────────────────────────────────────────
     const { data: sub } = await supabase
       .from('user_subscriptions')
       .select('stripe_customer_id')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .single();
 
     const customerId = sub?.stripe_customer_id;
@@ -62,6 +61,16 @@ Deno.serve(async (req) => {
     return json({ error: err.message }, 500);
   }
 });
+
+function decodeJwt(token) {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+    if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) return null;
+    return payload;
+  } catch { return null; }
+}
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {

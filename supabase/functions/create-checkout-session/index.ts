@@ -22,12 +22,13 @@ Deno.serve(async (req) => {
   );
 
   try {
-    // ── Auth ──────────────────────────────────────────────────────────────────
+    // ── Auth — decode JWT directly (compatible with ES256 projects) ───────────
     const token = (req.headers.get('authorization') ?? '').replace('Bearer ', '');
-    const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
-    if (authErr || !user) {
-      return json({ error: 'Unauthorized' }, 401);
-    }
+    const payload = decodeJwt(token);
+    if (!payload?.sub) return json({ error: 'Unauthorized' }, 401);
+
+    const userId    = payload.sub;
+    const userEmail = payload.email ?? '';
 
     // ── Payload ───────────────────────────────────────────────────────────────
     const { tier } = await req.json();
@@ -38,19 +39,19 @@ Deno.serve(async (req) => {
     const { data: sub } = await supabase
       .from('user_subscriptions')
       .select('stripe_customer_id')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .single();
 
     let customerId = sub?.stripe_customer_id;
 
     if (!customerId) {
-      const cRes = await stripe('POST', '/v1/customers', STRIPE_KEY, new URLSearchParams({
-        email: user.email ?? '',
-        'metadata[supabase_uid]': user.id,
+      const cRes = await stripeCall('POST', '/v1/customers', STRIPE_KEY, new URLSearchParams({
+        email: userEmail,
+        'metadata[supabase_uid]': userId,
       }));
       customerId = cRes.id;
       await supabase.from('user_subscriptions').upsert(
-        { user_id: user.id, stripe_customer_id: customerId, tier: 'free' },
+        { user_id: userId, stripe_customer_id: customerId, tier: 'free' },
         { onConflict: 'user_id' }
       );
     }
@@ -63,16 +64,16 @@ Deno.serve(async (req) => {
       mode: tier === 'full' ? 'subscription' : 'payment',
       success_url: `${SITE_URL}/?payment=success&tier=${tier}`,
       cancel_url: `${SITE_URL}/?payment=cancel`,
-      'metadata[supabase_uid]': user.id,
+      'metadata[supabase_uid]': userId,
       'metadata[tier]': tier,
     });
 
     if (tier === 'full') {
-      params.set('subscription_data[metadata][supabase_uid]', user.id);
+      params.set('subscription_data[metadata][supabase_uid]', userId);
       params.set('subscription_data[metadata][tier]', tier);
     }
 
-    const session = await stripe('POST', '/v1/checkout/sessions', STRIPE_KEY, params);
+    const session = await stripeCall('POST', '/v1/checkout/sessions', STRIPE_KEY, params);
 
     if (!session.url) {
       console.error('Stripe error:', JSON.stringify(session));
@@ -88,6 +89,19 @@ Deno.serve(async (req) => {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+function decodeJwt(token) {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+    // Reject expired tokens
+    if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) return null;
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -95,7 +109,7 @@ function json(data, status = 200) {
   });
 }
 
-async function stripe(method, path, key, body) {
+async function stripeCall(method, path, key, body) {
   const res = await fetch(`https://api.stripe.com${path}`, {
     method,
     headers: {
