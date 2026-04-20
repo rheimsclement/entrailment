@@ -1,78 +1,80 @@
 // @ts-nocheck
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import Stripe from 'https://esm.sh/stripe@13?target=deno';
-
-/**
- * POST /functions/v1/customer-portal
- *
- * Creates a Stripe Customer Portal session so the user can manage their
- * subscription (cancel, update payment method, etc.) without leaving the app.
- *
- * Returns: { url: string }
- */
-
-const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, {
-  apiVersion: '2023-10-16',
-  httpClient: Stripe.createFetchHttpClient(),
-});
-
-const supabaseAdmin = createClient(
-  Deno.env.get('SUPABASE_URL')!,
-  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-);
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
-  try {
-    // ── Auth ──────────────────────────────────────────────────────────────────
-    const token = (req.headers.get('authorization') ?? '').replace('Bearer ', '');
-    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
-    if (error || !user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
+  const STRIPE_KEY = Deno.env.get('STRIPE_SECRET_KEY') ?? '';
+  const SITE_URL   = Deno.env.get('SITE_URL') ?? 'https://entrailment.com';
 
-    // ── Look up Stripe customer ID ────────────────────────────────────────────
-    const { data: sub } = await supabaseAdmin
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+  );
+
+  try {
+    // ── Auth — decode JWT directly (compatible with ES256 projects) ───────────
+    const token = (req.headers.get('authorization') ?? '').replace('Bearer ', '');
+    const payload = decodeJwt(token);
+    if (!payload?.sub) return json({ error: 'Unauthorized' }, 401);
+    const userId = payload.sub;
+
+    // ── Look up Stripe customer ───────────────────────────────────────────────
+    const { data: sub } = await supabase
       .from('user_subscriptions')
       .select('stripe_customer_id')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .single();
 
     const customerId = sub?.stripe_customer_id;
-    if (!customerId) {
-      return new Response(JSON.stringify({ error: 'No Stripe customer found' }), {
-        status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
+    if (!customerId) return json({ error: 'No Stripe customer found' }, 404);
 
     // ── Create portal session ─────────────────────────────────────────────────
-    const siteUrl = Deno.env.get('SITE_URL') ?? 'https://entrailment.com';
-    const portalSession = await stripe.billingPortal.sessions.create({
-      customer: customerId,
-      return_url: siteUrl,
+    const res = await fetch('https://api.stripe.com/v1/billing_portal/sessions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${STRIPE_KEY}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        customer: customerId,
+        return_url: SITE_URL,
+      }),
     });
+    const portal = await res.json();
 
-    return new Response(JSON.stringify({ url: portalSession.url }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    if (!portal.url) {
+      console.error('Portal error:', JSON.stringify(portal));
+      return json({ error: portal.error?.message ?? 'Stripe error' }, 500);
+    }
+
+    return json({ url: portal.url });
   } catch (err) {
     console.error(err);
-    return new Response(JSON.stringify({ error: (err as Error).message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return json({ error: err.message }, 500);
   }
 });
+
+function decodeJwt(token) {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+    if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) return null;
+    return payload;
+  } catch { return null; }
+}
+
+function json(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
+}

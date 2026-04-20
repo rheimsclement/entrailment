@@ -1870,7 +1870,10 @@ async function startCheckout(tier) {
   const origText = btn?.textContent;
   if (btn) { btn.textContent = '⏳ Chargement…'; btn.disabled = true; }
   try {
-    const token = supabase.auth.getToken() || SUPABASE_ANON;
+    await ensureValidToken();
+    const stored = localStorage.getItem('sb_session');
+    const session = stored ? JSON.parse(stored) : null;
+    const token = supabase.auth.getToken() || session?.access_token || SUPABASE_ANON;
     const r = await fetch(CHECKOUT_URL, {
       method: 'POST',
       headers: {
