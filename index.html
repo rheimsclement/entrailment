@@ -2755,6 +2755,11 @@ function closeWorkoutModal() {
 }
 
 function showWorkoutExport() {
+  if (!requireTier('pdf_watch')) {
+    if (!currentUser) { showPage('login'); return; }
+    showUpgradeModal('pdf_watch');
+    return;
+  }
   let content = '';
   if (window._currentOpenPlan) {
     content = window._currentOpenPlan.content || '';
@@ -2801,10 +2806,11 @@ function parseWorkoutsFromPlan(text) {
       const cells = line.split('|').map(c => c.trim()).filter(c => c && !c.match(/^-+$/));
       if (cells.length < 3) return;
 
-      const dayCell = cells[0].toLowerCase();
-      const typeCell = cells[1] || '';
-      const durCell  = cells[2] || '';
-      const detCell  = cells[3] || '';
+      const strip    = s => s.replace(/[\*_`]/g,'').trim();
+      const dayCell  = strip(cells[0]).toLowerCase();
+      const typeCell = strip(cells[1] || '');
+      const durCell  = strip(cells[2] || '');
+      const detCell  = strip(cells[3] || '');
 
       const dayMatch = dayNames.find(d => dayCell.startsWith(d));
       if (!dayMatch) return;
@@ -3072,8 +3078,8 @@ function downloadFIT(idx) {
   writeD8(5);  writeD8(1); writeD8(0);   // intensity
   writeD8(3);  writeD8(1); writeD8(0);   // duration_type
   writeD8(2);  writeD8(4); writeD8(134); // duration_value (secs *1000)
-  writeD8(7);  writeD8(2); writeD8(132); // target_type
-  writeD8(8);  writeD8(2); writeD8(132); // target_value (custom hr)
+  writeD8(7);  writeD8(1); writeD8(0);   // target_type (enum)
+  writeD8(8);  writeD8(4); writeD8(134); // target_value (uint32)
 
   const intensityMap = { warmup:1, main:0, interval:0, recovery:3, cooldown:2 };
 
@@ -3085,8 +3091,8 @@ function downloadFIT(idx) {
     writeD8(intensityMap[s.type] ?? 0); // intensity
     writeD8(0);    // duration_type: time
     writeD32(s.durationSecs * 1000); // duration in ms
-    writeD16(1);   // target_type: heart_rate
-    writeD16(s.hrMax > 0 ? s.hrMin + (s.hrMax << 8) : 0); // custom hr zone
+    writeD8(2);    // target_type: open (pas de cible imposée)
+    writeD32(0);   // target_value: 0
   });
 
   // CRC
