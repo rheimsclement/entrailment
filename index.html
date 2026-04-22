@@ -3153,255 +3153,367 @@ async function exportPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
-    // ── Source des données : plan stocké en priorité, sinon DOM
-    let rawText = '';
-    let planTitle = 'Programme trail';
-    let planMeta = '';
-
+    // ── Source des données
+    let rawText = '', planTitle = 'Programme trail', planMeta = '';
     if (window._currentOpenPlan) {
-      // Vient du modal → données fiables depuis Supabase
       const p = window._currentOpenPlan;
       rawText = p.content || '';
       planTitle = p.title || 'Programme trail';
-      const date = new Date(p.created_at).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
-      planMeta = `Généré le ${date} · ${p.distance||''} · ${p.duration||''}`;
+      const d = new Date(p.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+      planMeta = `${d}${p.distance?' · '+p.distance:''}${p.duration?' · '+p.duration:''}`;
     } else {
-      // Vient du générateur (résultat immédiat, pas encore sauvegardé)
-      const resultContent = document.getElementById('result-content');
-      rawText = resultContent?.innerText || '';
+      rawText = document.getElementById('result-content')?.innerText || '';
       planTitle = document.getElementById('result-subtitle')?.textContent || 'Programme trail';
-      planMeta = '';
     }
 
-    const GREEN       = [28, 80, 56];
-    const GREEN_LIGHT = [226, 239, 234];
-    const DARK        = [26, 24, 16];
-    const GRAY        = [92, 84, 69];
-    const LIGHT_GRAY  = [242, 238, 228];
-    const W = 210; const H = 297; const ML = 18; const MR = 18; const CW = W - ML - MR;
+    // ── Palette exacte du site
+    const G    = [28,80,56];      // --green   #1C5038
+    const G2   = [46,114,84];     // --green2  #2E7254
+    const GBG  = [226,239,234];   // --green-bg
+    const GLT  = [175,200,184];   // --green-lt
+    const BG   = [242,238,228];   // --bg      #F2EEE4
+    const BG2  = [233,228,213];   // --bg2
+    const WH   = [255,254,251];   // --white
+    const DK   = [26,24,16];      // --text
+    const GR   = [92,84,69];      // --text2
+    const GR2  = [153,139,119];   // --text3
+    const OR   = [184,66,21];     // --orange
+    const ORBG = [252,240,232];   // --orange-bg
+    const W=210, H=297, ML=16, MR=16, CW=W-ML-MR;
 
-    const lines = rawText.split('\n').filter(l => l.trim());
-    const getSection = (kw) => {
-      const idx = lines.findIndex(l => l.toLowerCase().includes(kw.toLowerCase()));
-      if (idx === -1) return '';
-      return lines.slice(idx+1, idx+6).filter(l=>l.trim()&&!l.startsWith('###')).join(' ').substring(0,400);
+    const genDate = new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+    const lines = rawText.split('\n').filter(l=>l.trim());
+
+    const getSection = (kw, maxLines=10) => {
+      const idx = lines.findIndex(l=>l.toLowerCase().includes(kw.toLowerCase()));
+      if (idx===-1) return '';
+      return lines.slice(idx+1,idx+maxLines).filter(l=>l.trim()&&!l.startsWith('###')).join(' ').substring(0,600);
     };
 
-    // ══ PAGE 1 — COUVERTURE ══
-    doc.setFillColor(...GREEN);
-    doc.rect(0, 0, W, 90, 'F');
-    doc.setFillColor(175, 200, 184);
-    doc.rect(0, 88, W, 2, 'F');
+    // ══ PAGE 1 — COUVERTURE ══════════════════════════════════════
+    // Fond beige pleine page
+    doc.setFillColor(...BG); doc.rect(0,0,W,H,'F');
 
+    // Zone hero verte (haut)
+    doc.setFillColor(...G); doc.rect(0,0,W,88,'F');
+    // Liseré de transition
+    doc.setFillColor(...G2); doc.rect(0,86,W,3,'F');
+
+    // Marque — EN TRAILMENT
+    doc.setTextColor(175,210,192);
+    doc.setFontSize(6.5); doc.setFont('helvetica','bold');
+    doc.text('● EN TRAILMENT — COACH IA TRAIL', ML, 16);
+
+    // Séparateur
+    doc.setDrawColor(255,255,255,0.2); doc.setLineWidth(0.25);
+    doc.line(ML,21,W-MR,21);
+
+    // Titre principal (grand, blanc)
     doc.setTextColor(255,255,255);
-    doc.setFontSize(10); doc.setFont('helvetica','bold');
-    doc.text('EN TRAILMENT', ML, 20);
+    doc.setFontSize(23); doc.setFont('helvetica','bold');
+    const titleArr = doc.splitTextToSize(planTitle, CW);
+    const titleStartY = titleArr.length > 2 ? 34 : 38;
+    doc.text(titleArr, ML, titleStartY);
+
+    // Sous-titre : date génération
+    const subY = titleStartY + titleArr.length * 10 + 2;
     doc.setFontSize(8); doc.setFont('helvetica','normal');
-    doc.setTextColor(200,230,210);
-    doc.text('Coach IA · Spécialiste trail · Propulsé par Claude', ML, 27);
-    doc.setDrawColor(255,255,255); doc.setLineWidth(0.3);
-    doc.line(ML, 32, W-MR, 32);
+    doc.setTextColor(175,210,192);
+    doc.text(`Programme personnalisé · ${genDate}`, ML, Math.min(subY, 80));
 
-    doc.setTextColor(255,255,255);
-    doc.setFontSize(20); doc.setFont('helvetica','bold');
-    const titleLines = doc.splitTextToSize(planTitle, CW);
-    doc.text(titleLines, ML, 46);
+    // ── Blocs stats (fond blanc, sous le hero) ──────────────────
+    const statsY = 94;
+    doc.setFillColor(...WH);
+    doc.roundedRect(ML, statsY, CW, 28, 3, 3, 'F');
+    doc.setDrawColor(...GLT); doc.setLineWidth(0.35);
+    doc.roundedRect(ML, statsY, CW, 28, 3, 3, 'S');
 
-    if (planMeta) {
-      doc.setFontSize(9); doc.setFont('helvetica','normal');
-      doc.setTextColor(200,230,210);
-      doc.text(planMeta, ML, 46 + titleLines.length * 8);
-    }
-    const genDate = new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
-    doc.setFontSize(7); doc.setTextColor(180,220,200);
-    doc.text(`Généré le ${genDate}`, W-MR, 78, {align:'right'});
+    const dist = planMeta.match(/(\d[\d,.]*\s*km)/i)?.[1]
+              || rawText.match(/distance\s*(?:exacte)?[^:]*:\s*(\d+(?:\.\d+)?)\s*km/i)?.[1]?.concat(' km')
+              || '—';
+    const dur  = planMeta.match(/(\d+\s*semaines?)/i)?.[1]
+              || rawText.match(/(\d+)\s*semaines?\s+(?:de\s+)?(?:préparation|entraînement)/i)?.[1]?.concat(' semaines')
+              || '—';
+    const lvl  = rawText.match(/(débutant|intermédiaire|avancé|expert|élite)/i)?.[1] || '—';
 
-    // Bloc infos
-    doc.setFillColor(...LIGHT_GRAY);
-    doc.roundedRect(ML, 95, CW, 38, 3, 3, 'F');
-    const infoItems = [
-      { label:'Distance', val: planMeta.match(/(\d+[^·]*km[^·]*)/i)?.[1]?.trim() || '—' },
-      { label:'Durée prépa', val: planMeta.match(/(\d+\s*semaines?)/i)?.[1] || '—' },
-      { label:'Niveau', val: planMeta.match(/(débutant|intermédiaire|avancé|élite)/i)?.[1] || '—' },
-    ];
-    const col = CW/3;
-    infoItems.forEach((item,i) => {
-      const x = ML + i*col + col/2;
-      doc.setTextColor(...GRAY); doc.setFontSize(7); doc.setFont('helvetica','normal');
-      doc.text(item.label.toUpperCase(), x, 107, {align:'center'});
-      doc.setTextColor(...DARK); doc.setFontSize(10); doc.setFont('helvetica','bold');
-      doc.text(String(item.val).substring(0,25), x, 116, {align:'center'});
+    const stats = [{l:'DISTANCE',v:dist},{l:'PRÉPARATION',v:dur},{l:'NIVEAU',v:lvl}];
+    const colW3 = CW/3;
+    stats.forEach((s,i) => {
+      const cx = ML + i*colW3 + colW3/2;
+      if (i>0) {
+        doc.setDrawColor(...GLT); doc.setLineWidth(0.25);
+        doc.line(ML+i*colW3, statsY+5, ML+i*colW3, statsY+23);
+      }
+      doc.setTextColor(...GR2); doc.setFontSize(5.5); doc.setFont('helvetica','bold');
+      doc.text(s.l, cx, statsY+9, {align:'center'});
+      doc.setTextColor(...DK); doc.setFontSize(9.5); doc.setFont('helvetica','bold');
+      doc.text(String(s.v).substring(0,20), cx, statsY+20, {align:'center'});
     });
 
-    // Graphique volume
-    const canvas = document.createElement('canvas');
-    canvas.width=580; canvas.height=190;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle='#F2EEE4'; ctx.fillRect(0,0,580,190);
-
-    // Parse volumes — try km first, then hours × 10
+    // ── Graphique volume ─────────────────────────────────────────
     const volData = [];
-    const wm = rawText.matchAll(/semaine\s+(\d+)[^\n]*(?:\n[^\n]*){0,12}volume[^:]*:?\s*[~≈]?\s*(\d+(?:[,\.]\d+)?)\s*(km|h)/gi);
+    const wm = rawText.matchAll(/semaine\s+(\d+)[^\n]*(?:\n[^\n]*){0,14}volume[^:]*:?\s*[~≈]?\s*(\d+(?:[,\.]\d+)?)\s*(km|h)/gi);
     for (const m of wm) {
       const val = parseFloat(m[2].replace(',','.'));
-      volData.push({ w:`S${m[1]}`, v: m[3].toLowerCase()==='km' ? val : val*10 });
+      volData.push({w:`S${m[1]}`, v: /km/i.test(m[3]) ? val : val*10});
     }
-    if (volData.length === 0) {
-      const nm = rawText.matchAll(/~\s*(\d+(?:\.\d+)?)\s*(km|h(?:eures?)?)(?:\s*(?:\||$))/gi);
+    if (!volData.length) {
+      const nm = rawText.matchAll(/[~≈]\s*(\d+(?:\.\d+)?)\s*(km|h(?:eures?)?)(?=\s*[|\n])/gi);
       let idx=1;
       for (const m of nm) {
-        const isKm = /km/i.test(m[2]);
-        volData.push({w:`S${idx++}`, v: parseFloat(m[1])*(isKm?1:10)});
-        if(idx>12)break;
+        volData.push({w:`S${idx++}`, v: parseFloat(m[1])*(/km/i.test(m[2])?1:10)});
+        if(idx>16) break;
       }
     }
-    if (volData.length === 0) for(let i=1;i<=6;i++) volData.push({w:`S${i}`, v:35+i*5});
+    if (!volData.length) for(let i=1;i<=6;i++) volData.push({w:`S${i}`,v:35+i*5});
 
-    const maxV2 = Math.max(...volData.map(d=>d.v), 1);
-    const bw = (540)/volData.length;
-    volData.forEach((d,i)=>{
-      const bh = (d.v/maxV2)*140;
-      const x = 20+i*bw;
-      const isLast = i>=volData.length-2;
-      const grad = ctx.createLinearGradient(0, 155-bh, 0, 155);
-      grad.addColorStop(0, isLast ? '#AFC8B8' : '#1C5038');
-      grad.addColorStop(1, isLast ? 'rgba(175,200,184,.4)' : 'rgba(46,114,84,.5)');
-      ctx.fillStyle = grad;
-      ctx.beginPath(); ctx.roundRect(x+2,155-bh,bw-4,bh,[3,3,0,0]); ctx.fill();
-      ctx.fillStyle='#5C5445'; ctx.font='10px sans-serif'; ctx.textAlign='center';
-      ctx.fillText(d.w, x+bw/2, 172);
-      ctx.fillStyle='#1C5038'; ctx.font='bold 9px sans-serif';
-      ctx.fillText(`${Math.round(d.v)}km`, x+bw/2, 150-bh);
+    const chartCanvas = document.createElement('canvas');
+    chartCanvas.width=600; chartCanvas.height=180;
+    const cc = chartCanvas.getContext('2d');
+    cc.fillStyle='#FFFEFB'; cc.fillRect(0,0,600,180);
+
+    const maxV = Math.max(...volData.map(d=>d.v), 1);
+    const bAreaH=120, bBaseY=140, bLeft=32;
+    const bw = (560-bLeft)/volData.length;
+
+    // Grille horizontale
+    [.25,.5,.75,1].forEach(f => {
+      const gy = bBaseY - bAreaH*f;
+      cc.strokeStyle='#E9E4D5'; cc.lineWidth=1;
+      cc.beginPath(); cc.moveTo(bLeft,gy); cc.lineTo(580,gy); cc.stroke();
+      cc.fillStyle='#998B77'; cc.font='9px sans-serif'; cc.textAlign='right';
+      cc.fillText(Math.round(maxV*f)+'km', bLeft-3, gy+3);
     });
 
-    const chartImg = canvas.toDataURL('image/png');
-    doc.setTextColor(...GREEN); doc.setFontSize(9); doc.setFont('helvetica','bold');
-    doc.text('Volume par semaine (km)', ML, 146);
-    doc.addImage(chartImg,'PNG',ML,150,CW,CW*190/580);
+    // Barres
+    volData.forEach((d,i) => {
+      const bh = (d.v/maxV)*bAreaH;
+      const x = bLeft + i*bw + 2;
+      const isRecup = (i+1)%4===0;
+      const grad = cc.createLinearGradient(0, bBaseY-bh, 0, bBaseY);
+      grad.addColorStop(0, isRecup ? '#AFC8B8' : '#1C5038');
+      grad.addColorStop(1, isRecup ? 'rgba(175,200,184,.25)' : 'rgba(28,80,56,.35)');
+      cc.fillStyle = grad;
+      cc.beginPath(); cc.roundRect(x, bBaseY-bh, bw-4, bh, [3,3,0,0]); cc.fill();
+      // Label semaine
+      cc.fillStyle='#5C5445'; cc.font='9px sans-serif'; cc.textAlign='center';
+      cc.fillText(d.w, x+(bw-4)/2, bBaseY+13);
+      // Valeur dans la barre si assez haute
+      if (bh>14) {
+        cc.fillStyle='rgba(255,255,255,.9)'; cc.font='bold 8px sans-serif';
+        cc.fillText(Math.round(d.v), x+(bw-4)/2, bBaseY-bh+12);
+      }
+    });
+    // Légende
+    cc.fillStyle='#1C5038'; cc.font='bold 10px sans-serif'; cc.textAlign='left';
+    cc.fillText('Volume hebdomadaire (km)', bLeft, 12);
+    cc.fillStyle='#AFC8B8'; cc.font='9px sans-serif';
+    cc.fillText('■ semaines de récupération', 300, 12);
 
-    // ══ PAGE 2 — ZONES FC + PHILOSOPHIE ══
-    let addHeader = (pg) => {
-      doc.setFillColor(...GREEN_LIGHT); doc.rect(0,0,W,13,'F');
-      doc.setTextColor(...GREEN); doc.setFontSize(7); doc.setFont('helvetica','bold');
-      doc.text('EN TRAILMENT',ML,8);
-      doc.setTextColor(...GRAY); doc.setFont('helvetica','normal');
-      doc.text(planTitle.substring(0,55),W/2,8,{align:'center'});
-      doc.text(`Page ${pg}`,W-MR,8,{align:'right'});
+    const chartImg = chartCanvas.toDataURL('image/png');
+    const chartY = statsY + 34;
+    const chartH = (CW-4)*180/596;
+    doc.setFillColor(...WH);
+    doc.roundedRect(ML, chartY, CW, chartH+4, 3, 3, 'F');
+    doc.setDrawColor(...GLT); doc.setLineWidth(0.35);
+    doc.roundedRect(ML, chartY, CW, chartH+4, 3, 3, 'S');
+    doc.addImage(chartImg,'PNG',ML+2, chartY+2, CW-4, chartH);
+
+    // ══ HELPERS PAGES INTÉRIEURES ════════════════════════════════
+    const addHeader = () => {
+      const pg = doc.internal.getCurrentPageInfo().pageNumber;
+      doc.setFillColor(...G); doc.rect(0,0,W,11,'F');
+      doc.setFillColor(...G2); doc.rect(0,10.2,W,1,'F');
+      doc.setTextColor(175,210,192); doc.setFontSize(6); doc.setFont('helvetica','bold');
+      doc.text('EN TRAILMENT', ML, 7.2);
+      doc.setTextColor(255,255,255); doc.setFont('helvetica','normal');
+      doc.text(planTitle.substring(0,62), W/2, 7.2, {align:'center'});
+      doc.setTextColor(175,210,192);
+      doc.text(`${pg}`, W-MR, 7.2, {align:'right'});
     };
 
-    doc.addPage(); addHeader(2); let y=20;
+    let y = 20;
 
-    const addSectionTitle = (title) => {
-      if(y>260){doc.addPage();addHeader(doc.internal.getCurrentPageInfo().pageNumber);y=20;}
-      doc.setFillColor(...GREEN); doc.rect(ML,y,3,7,'F');
-      doc.setTextColor(...GREEN); doc.setFontSize(10); doc.setFont('helvetica','bold');
-      doc.text(title, ML+6, y+5.5); y+=13;
+    const newPage = () => {
+      doc.addPage();
+      doc.setFillColor(...BG); doc.rect(0,0,W,H,'F');
+      addHeader(); y=20;
+    };
+
+    const checkY = (need=18) => { if (y+need>276) newPage(); };
+
+    const sectionBlock = (eyebrow, title) => {
+      checkY(22);
+      // Eyebrow
+      doc.setTextColor(...G); doc.setFontSize(5.5); doc.setFont('helvetica','bold');
+      doc.text(eyebrow.toUpperCase(), ML+5, y); y+=4.5;
+      // Barre verte + titre
+      doc.setFillColor(...G); doc.roundedRect(ML, y-0.5, 3.5, 8, 1, 1, 'F');
+      doc.setTextColor(...G); doc.setFontSize(10.5); doc.setFont('helvetica','bold');
+      doc.text(title, ML+7, y+6); y+=14;
     };
 
     const addText = (text) => {
-      doc.setTextColor(...DARK); doc.setFontSize(8); doc.setFont('helvetica','normal');
-      doc.splitTextToSize(text.replace(/\*\*/g,''), CW).forEach(l=>{
-        if(y>272){doc.addPage();addHeader(doc.internal.getCurrentPageInfo().pageNumber);y=20;}
-        doc.text(l,ML,y); y+=4.5;
-      }); y+=3;
+      if (!text) return;
+      doc.setTextColor(...DK); doc.setFontSize(7.8); doc.setFont('helvetica','normal');
+      doc.splitTextToSize(text.replace(/\*\*/g,''), CW).forEach(l => {
+        checkY(6); doc.text(l, ML, y); y+=4.7;
+      }); y+=4;
     };
 
-    // Philosophie
-    const philo = getSection('Philosophie')||getSection('philosophie')||getSection('approche')||'Programme d\'entraînement trail personnalisé généré par En Trailment.';
-    addSectionTitle('Philosophie d\'entraînement'); addText(philo);
+    // ══ PAGE 2 — CONTEXTE + ZONES FC ════════════════════════════
+    newPage();
+
+    const philo = getSection('Contexte')||getSection('Philosophie')||getSection('approche')
+               || 'Programme d\'entraînement trail personnalisé généré par En Trailment.';
+    sectionBlock('Analyse & stratégie', 'Contexte d\'entraînement');
+    addText(philo);
 
     // Zones FC
     const hrMaxMatch = rawText.match(/FC\s*max[^:]*:\s*(\d{3})/i)||rawText.match(/(\d{3})\s*bpm/);
     const hrRestMatch = rawText.match(/FC\s*repos[^:]*:\s*(\d+)/i);
     const hm = hrMaxMatch ? parseInt(hrMaxMatch[1]) : null;
     const hr = hrRestMatch ? parseInt(hrRestMatch[1]) : 60;
-    const kz = hm ? (p) => `${Math.round(hr+(hm-hr)*p[0])}–${Math.round(hr+(hm-hr)*p[1])} bpm` : (p) => `${Math.round(p[0]*100)}–${Math.round(p[1]*100)}%`;
+    const kz = hm
+      ? (p) => `${Math.round(hr+(hm-hr)*p[0])}–${Math.round(hr+(hm-hr)*p[1])} bpm`
+      : (p) => `${Math.round(p[0]*100)}–${Math.round(p[1]*100)}% FCmax`;
 
-    addSectionTitle(`Zones cardiaques${hm ? ` (FC max : ${hm} bpm)` : ''}`);
+    checkY(70);
+    sectionBlock(`Données physiologiques${hm?' · FC max '+hm+' bpm':''}`, 'Zones d\'intensité');
+
     doc.autoTable({
-      startY:y, margin:{left:ML,right:MR},
-      head:[['Zone','Intensité','FC cible','Utilisation principale']],
-      body:[
-        ['Z1','Endurance fondamentale', kz([.60,.65]),'Sorties longues, récupération active'],
-        ['Z2','Endurance active',       kz([.70,.75]),'Tempo, fartlek, sorties soutenues'],
-        ['Z3','Tempo / allure course',  kz([.80,.85]),'Seuil, simulations race-pace'],
-        ['Z4','Fractionné / VMA',       kz([.90,.98]),'Intervalles courts, côtes intenses'],
+      startY: y, margin: {left:ML, right:MR},
+      head: [['Zone','Nom & effort perçu','FC cible','Rôle principal']],
+      body: [
+        ['Z1','Récupération / EF basse — conversation fluide', kz([.50,.65]),'75–80% du volume · Récupération, sorties longues'],
+        ['Z2','Endurance fondamentale — effort confortable',   kz([.65,.75]),'Sorties longues, back-to-back · Moteur aérobie'],
+        ['Z3','Tempo bas / seuil — phrases courtes',          kz([.75,.85]),'Max 15% du volume · Montées, tempo'],
+        ['Z4','Seuil haut — quelques mots seulement',         kz([.85,.90]),'Blocs seuil 15–30 min · Seuil lactique'],
+        ['Z5','VO2max / fractionné — effort maximal',         kz([.90,1.0]), 'Max 10% · Côtes, intervalles · > 5 min insoutenable'],
       ],
-      styles:{fontSize:8,cellPadding:2.5,textColor:DARK,lineColor:[230,225,215],lineWidth:0.3},
-      headStyles:{fillColor:GREEN,textColor:255,fontStyle:'bold',fontSize:8},
-      alternateRowStyles:{fillColor:[250,248,245]},
-      columnStyles:{0:{cellWidth:13},1:{cellWidth:45},2:{cellWidth:35}},
+      styles: {fontSize:7.2, cellPadding:2.8, textColor:DK, lineColor:[220,215,200], lineWidth:0.2},
+      headStyles: {fillColor:G, textColor:255, fontStyle:'bold', fontSize:7.2},
+      alternateRowStyles: {fillColor:[249,246,240]},
+      columnStyles: {0:{cellWidth:11,fontStyle:'bold'}, 1:{cellWidth:52}, 2:{cellWidth:28}},
     });
-    y = doc.lastAutoTable.finalY + 10;
+    y = doc.lastAutoTable.finalY + 12;
 
-    // ══ PAGES PROGRAMME ══
-    doc.addPage(); addHeader(doc.internal.getCurrentPageInfo().pageNumber); y=20;
-    addSectionTitle('Programme semaine par semaine');
+    // ══ PAGES PROGRAMME ══════════════════════════════════════════
+    newPage();
+    sectionBlock('Programme d\'entraînement détaillé', 'Plan semaine par semaine');
 
+    // Parse les semaines + volumes
     const weekSections=[];
-    let curWeek=null, curRows=[];
+    let curWeek=null, curRows=[], curVol='';
     lines.forEach(line=>{
-      if(line.match(/semaine\s+\d+/i)||line.match(/^####/i)){
-        if(curWeek&&curRows.length>0) weekSections.push({title:curWeek,rows:curRows});
-        curWeek=line.replace(/^#+\s*/,'').replace(/\*\*/g,'').trim(); curRows=[];
-      } else if(line.includes('|')&&curWeek){
-        const cells=line.split('|').map(c=>c.trim()).filter(c=>c&&!c.match(/^-+$/));
-        if(cells.length>=3&&!cells[0].toLowerCase().match(/jour|day/)&&!cells[0].match(/^-/))
-          curRows.push(cells.slice(0,4).map(c=>c.substring(0,70)));
+      const isWkHead = line.match(/semaine\s+\d+/i) || line.match(/^#{2,4}\s*semaine/i);
+      const isVol = line.match(/volume\s*(?:cible|total)?[^:]*:/i) || line.match(/\*\*volume/i);
+      if (isWkHead) {
+        if (curWeek && curRows.length) weekSections.push({title:curWeek, rows:curRows, vol:curVol});
+        curWeek = line.replace(/^#+\s*/,'').replace(/\*\*/g,'').trim();
+        curRows=[]; curVol='';
+      } else if (isVol && curWeek) {
+        curVol = line.replace(/\*\*/g,'').trim();
+      } else if (line.includes('|') && curWeek) {
+        const cells = line.split('|').map(c=>c.trim()).filter(c=>c&&!c.match(/^-+$/));
+        if (cells.length>=3 && !cells[0].toLowerCase().match(/^jour|^day/) && !cells[0].match(/^-/))
+          curRows.push(cells.slice(0,4).map(c=>c.substring(0,90)));
       }
     });
-    if(curWeek&&curRows.length>0) weekSections.push({title:curWeek,rows:curRows});
+    if (curWeek && curRows.length) weekSections.push({title:curWeek, rows:curRows, vol:curVol});
 
-    if(weekSections.length>0){
-      weekSections.forEach(wk=>{
-        if(y>250){doc.addPage();addHeader(doc.internal.getCurrentPageInfo().pageNumber);y=20;}
-        doc.setTextColor(...GREEN); doc.setFontSize(9); doc.setFont('helvetica','bold');
-        doc.text(wk.title,ML,y); y+=4;
+    if (weekSections.length > 0) {
+      weekSections.forEach(wk => {
+        // Estimation hauteur: header 10 + table header 8 + rows×8 + vol 8 + marge 6
+        const est = 10 + 8 + wk.rows.length*8 + 14;
+        checkY(est);
+
+        // En-tête de semaine sur fond vert-bg
+        doc.setFillColor(...GBG);
+        doc.roundedRect(ML, y, CW, 8.5, 2, 2, 'F');
+        doc.setTextColor(...G); doc.setFontSize(8); doc.setFont('helvetica','bold');
+        doc.text(wk.title, ML+4, y+6);
+        y+=11;
+
         doc.autoTable({
-          startY:y, margin:{left:ML,right:MR},
-          head:[['Jour','Séance','Durée','Détail']],
-          body:wk.rows,
-          styles:{fontSize:7.5,cellPadding:2,textColor:DARK,lineColor:[230,225,215],lineWidth:0.2},
-          headStyles:{fillColor:[45,106,79,0.8],textColor:255,fontStyle:'bold',fontSize:7.5,fillColor:GREEN},
-          alternateRowStyles:{fillColor:[250,248,245]},
-          columnStyles:{0:{cellWidth:16},1:{cellWidth:38},2:{cellWidth:20}},
+          startY: y, margin: {left:ML, right:MR},
+          head: [['Jour','Séance','Durée','Détail & Exécution']],
+          body: wk.rows,
+          didParseCell: (data) => {
+            if (data.section !== 'body') return;
+            const seance = (wk.rows[data.row.index]?.[1]||'').toLowerCase();
+            if (seance.includes('course objectif')||seance.includes('course principale')) {
+              data.cell.styles.fillColor = GBG;
+              data.cell.styles.textColor = G;
+              data.cell.styles.fontStyle = 'bold';
+            } else if (seance.includes('course b')||seance.includes('course prép')) {
+              data.cell.styles.fillColor = ORBG;
+              data.cell.styles.textColor = OR;
+            } else if (seance.includes('repos')||seance.includes('rest')) {
+              data.cell.styles.fillColor = [249,247,243];
+              data.cell.styles.textColor = GR2;
+            }
+          },
+          styles: {fontSize:7.2, cellPadding:2.5, textColor:DK, lineColor:[218,212,198], lineWidth:0.18, overflow:'linebreak'},
+          headStyles: {fillColor:G, textColor:255, fontStyle:'bold', fontSize:7.2, cellPadding:3},
+          columnStyles: {
+            0: {cellWidth:19},
+            1: {cellWidth:40},
+            2: {cellWidth:17},
+            3: {cellWidth: CW-19-40-17},
+          },
         });
-        y=doc.lastAutoTable.finalY+8;
+        y = doc.lastAutoTable.finalY + 2;
+
+        // Volume cible
+        if (wk.vol) {
+          checkY(8);
+          doc.setFillColor(...BG2); doc.roundedRect(ML, y, CW, 7, 1.5, 1.5, 'F');
+          doc.setTextColor(...GR); doc.setFontSize(6.8); doc.setFont('helvetica','italic');
+          doc.text(wk.vol.replace(/\*\*/g,'').substring(0,100), ML+3, y+4.9);
+          y+=10;
+        } else { y+=6; }
       });
     } else {
-      // Texte brut si pas de tableaux
+      // Fallback texte brut
       lines.forEach(line=>{
-        if(y>272){doc.addPage();addHeader(doc.internal.getCurrentPageInfo().pageNumber);y=20;}
-        const clean=line.replace(/^#+\s*/,'').replace(/\*\*/g,'').trim();
-        if(!clean) return;
-        if(line.match(/semaine\s+\d+/i)||line.match(/^###/i)){
-          y+=2; doc.setTextColor(...GREEN); doc.setFontSize(9); doc.setFont('helvetica','bold');
-          doc.text(clean,ML,y); y+=6;
+        const clean = line.replace(/^#+\s*/,'').replace(/\*\*/g,'').trim();
+        if (!clean) return;
+        if (line.match(/semaine\s+\d+/i)||line.match(/^###/i)) {
+          checkY(14);
+          doc.setFillColor(...GBG); doc.roundedRect(ML,y,CW,8.5,2,2,'F');
+          doc.setTextColor(...G); doc.setFontSize(8); doc.setFont('helvetica','bold');
+          doc.text(clean, ML+4, y+6); y+=13;
         } else {
-          doc.setTextColor(...DARK); doc.setFontSize(8); doc.setFont('helvetica','normal');
-          doc.splitTextToSize(clean,CW).forEach(l=>{doc.text(l,ML,y);y+=4.2;});
+          checkY(6);
+          doc.setTextColor(...DK); doc.setFontSize(7.8); doc.setFont('helvetica','normal');
+          doc.splitTextToSize(clean, CW).forEach(l=>{checkY(6);doc.text(l,ML,y);y+=4.5;});
         }
       });
     }
 
-    // ══ PAGE STRATÉGIE + NUTRITION ══
-    doc.addPage(); addHeader(doc.internal.getCurrentPageInfo().pageNumber); y=20;
-
+    // ══ PAGE FINALE — STRATÉGIE + NUTRITION + VIGILANCE ══════════
+    newPage();
     const strat = getSection('Stratégie')||getSection('stratégie')||'';
     const nutri = getSection('Nutrition')||getSection('nutrition')||'';
-    const vigil = getSection('vigilance')||getSection('Points')||'';
-    if(strat){addSectionTitle('Stratégie de course');addText(strat);}
-    if(nutri){addSectionTitle('Nutrition & Hydratation');addText(nutri);}
-    if(vigil){addSectionTitle('Points de vigilance');addText(vigil);}
+    const vigil = getSection('vigilance')||getSection('Points de vigilance')||'';
+    if (strat) { sectionBlock('Jour J', 'Stratégie de course'); addText(strat); }
+    if (nutri) { sectionBlock('Alimentation & performance', 'Nutrition & Hydratation'); addText(nutri); }
+    if (vigil) { sectionBlock('Suivi & prévention', 'Points de vigilance'); addText(vigil); }
 
-    // Footers
-    const total=doc.internal.getNumberOfPages();
-    for(let p=1;p<=total;p++){
+    // ══ FOOTERS (toutes les pages) ════════════════════════════════
+    const total = doc.internal.getNumberOfPages();
+    for (let p=1; p<=total; p++) {
       doc.setPage(p);
-      doc.setFillColor(...GREEN_LIGHT); doc.rect(0,H-11,W,11,'F');
-      doc.setTextColor(...GRAY); doc.setFontSize(6.5); doc.setFont('helvetica','normal');
-      doc.text('En Trailment · Coach IA trail · Propulsé par Claude · anthropic.com',ML,H-4);
-      doc.text(`${p} / ${total}`,W-MR,H-4,{align:'right'});
+      // Fond footer
+      doc.setFillColor(...GBG); doc.rect(0, H-10, W, 10, 'F');
+      doc.setDrawColor(...GLT); doc.setLineWidth(0.3);
+      doc.line(0, H-10, W, H-10);
+      // Texte footer
+      doc.setTextColor(...GR); doc.setFontSize(5.8); doc.setFont('helvetica','normal');
+      doc.text('En Trailment · Coach IA trail · Propulsé par Claude · Document confidentiel & personnalisé', ML, H-4);
+      doc.setTextColor(...G); doc.setFont('helvetica','bold');
+      doc.text(p===1 ? genDate : `${p} / ${total}`, W-MR, H-4, {align:'right'});
     }
 
     const fname = planTitle.replace(/[^a-zA-Z0-9\s]/g,'').replace(/\s+/g,'-').substring(0,40);
